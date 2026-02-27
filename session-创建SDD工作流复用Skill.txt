@@ -1,0 +1,4090 @@
+# 文档驱动开发框架复用
+
+**Session ID:** ses_3b9c5a1d2ffe14ZIAI4g5uthPB
+**Created:** 2/10/2026, 2:25:56 PM
+**Updated:** 2/10/2026, 2:53:05 PM
+
+---
+
+## User
+
+我想把目前这套AGENTS.md的文档驱动开发，在其他历史项目中落地，想创建一个SKills或者脚本，方便在其他项目中快速搭建框架以及约束
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 7.3s)
+
+
+
+I need to understand what you're looking for before diving in. Let me first load the brainstorming skill since this is a creative/design task.
+
+**Tool: skill**
+
+**Input:**
+```json
+{
+  "name": "brainstorming"
+}
+```
+
+**Output:**
+```
+<skill_content name="brainstorming">
+# Skill: brainstorming
+
+# Brainstorming Ideas Into Designs
+
+## Overview
+
+Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
+
+Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design in small sections (200-300 words), checking after each section whether it looks right so far.
+
+## The Process
+
+**Understanding the idea:**
+- Check out the current project state first (files, docs, recent commits)
+- Ask questions one at a time to refine the idea
+- Prefer multiple choice questions when possible, but open-ended is fine too
+- Only one question per message - if a topic needs more exploration, break it into multiple questions
+- Focus on understanding: purpose, constraints, success criteria
+
+**Exploring approaches:**
+- Propose 2-3 different approaches with trade-offs
+- Present options conversationally with your recommendation and reasoning
+- Lead with your recommended option and explain why
+
+**Presenting the design:**
+- Once you believe you understand what you're building, present the design
+- Break it into sections of 200-300 words
+- Ask after each section whether it looks right so far
+- Cover: architecture, components, data flow, error handling, testing
+- Be ready to go back and clarify if something doesn't make sense
+
+## After the Design
+
+**Documentation:**
+- Write the validated design to `docs/plans/YYYY-MM-DD-<topic>-design.md`
+- Use elements-of-style:writing-clearly-and-concisely skill if available
+- Commit the design document to git
+
+**Implementation (if continuing):**
+- Ask: "Ready to set up for implementation?"
+- Use superpowers:using-git-worktrees to create isolated workspace
+- Use superpowers:writing-plans to create detailed implementation plan
+
+## Key Principles
+
+- **One question at a time** - Don't overwhelm with multiple questions
+- **Multiple choice preferred** - Easier to answer than open-ended when possible
+- **YAGNI ruthlessly** - Remove unnecessary features from all designs
+- **Explore alternatives** - Always propose 2-3 approaches before settling
+- **Incremental validation** - Present design in sections, validate each
+- **Be flexible** - Go back and clarify when something doesn't make sense
+
+Base directory for this skill: file:///Users/liyou/.config/opencode/skills/superpowers/brainstorming
+Relative paths in this skill (e.g., scripts/, reference/) are relative to this base directory.
+Note: file list is sampled.
+
+<skill_files>
+
+</skill_files>
+</skill_content>
+```
+
+**Tool: skill**
+
+**Input:**
+```json
+{
+  "name": "writing-skills"
+}
+```
+
+**Output:**
+```
+<skill_content name="writing-skills">
+# Skill: writing-skills
+
+# Writing Skills
+
+## Overview
+
+**Writing skills IS Test-Driven Development applied to process documentation.**
+
+**Personal skills live in agent-specific directories (`~/.claude/skills` for Claude Code, `~/.agents/skills/` for Codex)** 
+
+You write test cases (pressure scenarios with subagents), watch them fail (baseline behavior), write the skill (documentation), watch tests pass (agents comply), and refactor (close loopholes).
+
+**Core principle:** If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing.
+
+**REQUIRED BACKGROUND:** You MUST understand superpowers:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill adapts TDD to documentation.
+
+**Official guidance:** For Anthropic's official skill authoring best practices, see anthropic-best-practices.md. This document provides additional patterns and guidelines that complement the TDD-focused approach in this skill.
+
+## What is a Skill?
+
+A **skill** is a reference guide for proven techniques, patterns, or tools. Skills help future Claude instances find and apply effective approaches.
+
+**Skills are:** Reusable techniques, patterns, tools, reference guides
+
+**Skills are NOT:** Narratives about how you solved a problem once
+
+## TDD Mapping for Skills
+
+| TDD Concept | Skill Creation |
+|-------------|----------------|
+| **Test case** | Pressure scenario with subagent |
+| **Production code** | Skill document (SKILL.md) |
+| **Test fails (RED)** | Agent violates rule without skill (baseline) |
+| **Test passes (GREEN)** | Agent complies with skill present |
+| **Refactor** | Close loopholes while maintaining compliance |
+| **Write test first** | Run baseline scenario BEFORE writing skill |
+| **Watch it fail** | Document exact rationalizations agent uses |
+| **Minimal code** | Write skill addressing those specific violations |
+| **Watch it pass** | Verify agent now complies |
+| **Refactor cycle** | Find new rationalizations → plug → re-verify |
+
+The entire skill creation process follows RED-GREEN-REFACTOR.
+
+## When to Create a Skill
+
+**Create when:**
+- Technique wasn't intuitively obvious to you
+- You'd reference this again across projects
+- Pattern applies broadly (not project-specific)
+- Others would benefit
+
+**Don't create for:**
+- One-off solutions
+- Standard practices well-documented elsewhere
+- Project-specific conventions (put in CLAUDE.md)
+- Mechanical constraints (if it's enforceable with regex/validation, automate it—save documentation for judgment calls)
+
+## Skill Types
+
+### Technique
+Concrete method with steps to follow (condition-based-waiting, root-cause-tracing)
+
+### Pattern
+Way of thinking about problems (flatten-with-flags, test-invariants)
+
+### Reference
+API docs, syntax guides, tool documentation (office docs)
+
+## Directory Structure
+
+
+```
+skills/
+  skill-name/
+    SKILL.md              # Main reference (required)
+    supporting-file.*     # Only if needed
+```
+
+**Flat namespace** - all skills in one searchable namespace
+
+**Separate files for:**
+1. **Heavy reference** (100+ lines) - API docs, comprehensive syntax
+2. **Reusable tools** - Scripts, utilities, templates
+
+**Keep inline:**
+- Principles and concepts
+- Code patterns (< 50 lines)
+- Everything else
+
+## SKILL.md Structure
+
+**Frontmatter (YAML):**
+- Only two fields supported: `name` and `description`
+- Max 1024 characters total
+- `name`: Use letters, numbers, and hyphens only (no parentheses, special chars)
+- `description`: Third-person, describes ONLY when to use (NOT what it does)
+  - Start with "Use when..." to focus on triggering conditions
+  - Include specific symptoms, situations, and contexts
+  - **NEVER summarize the skill's process or workflow** (see CSO section for why)
+  - Keep under 500 characters if possible
+
+```markdown
+---
+name: Skill-Name-With-Hyphens
+description: Use when [specific triggering conditions and symptoms]
+---
+
+# Skill Name
+
+## Overview
+What is this? Core principle in 1-2 sentences.
+
+## When to Use
+[Small inline flowchart IF decision non-obvious]
+
+Bullet list with SYMPTOMS and use cases
+When NOT to use
+
+## Core Pattern (for techniques/patterns)
+Before/after code comparison
+
+## Quick Reference
+Table or bullets for scanning common operations
+
+## Implementation
+Inline code for simple patterns
+Link to file for heavy reference or reusable tools
+
+## Common Mistakes
+What goes wrong + fixes
+
+## Real-World Impact (optional)
+Concrete results
+```
+
+
+## Claude Search Optimization (CSO)
+
+**Critical for discovery:** Future Claude needs to FIND your skill
+
+### 1. Rich Description Field
+
+**Purpose:** Claude reads description to decide which skills to load for a given task. Make it answer: "Should I read this skill right now?"
+
+**Format:** Start with "Use when..." to focus on triggering conditions
+
+**CRITICAL: Description = When to Use, NOT What the Skill Does**
+
+The description should ONLY describe triggering conditions. Do NOT summarize the skill's process or workflow in the description.
+
+**Why this matters:** Testing revealed that when a description summarizes the skill's workflow, Claude may follow the description instead of reading the full skill content. A description saying "code review between tasks" caused Claude to do ONE review, even though the skill's flowchart clearly showed TWO reviews (spec compliance then code quality).
+
+When the description was changed to just "Use when executing implementation plans with independent tasks" (no workflow summary), Claude correctly read the flowchart and followed the two-stage review process.
+
+**The trap:** Descriptions that summarize workflow create a shortcut Claude will take. The skill body becomes documentation Claude skips.
+
+```yaml
+# ❌ BAD: Summarizes workflow - Claude may follow this instead of reading skill
+description: Use when executing plans - dispatches subagent per task with code review between tasks
+
+# ❌ BAD: Too much process detail
+description: Use for TDD - write test first, watch it fail, write minimal code, refactor
+
+# ✅ GOOD: Just triggering conditions, no workflow summary
+description: Use when executing implementation plans with independent tasks in the current session
+
+# ✅ GOOD: Triggering conditions only
+description: Use when implementing any feature or bugfix, before writing implementation code
+```
+
+**Content:**
+- Use concrete triggers, symptoms, and situations that signal this skill applies
+- Describe the *problem* (race conditions, inconsistent behavior) not *language-specific symptoms* (setTimeout, sleep)
+- Keep triggers technology-agnostic unless the skill itself is technology-specific
+- If skill is technology-specific, make that explicit in the trigger
+- Write in third person (injected into system prompt)
+- **NEVER summarize the skill's process or workflow**
+
+```yaml
+# ❌ BAD: Too abstract, vague, doesn't include when to use
+description: For async testing
+
+# ❌ BAD: First person
+description: I can help you with async tests when they're flaky
+
+# ❌ BAD: Mentions technology but skill isn't specific to it
+description: Use when tests use setTimeout/sleep and are flaky
+
+# ✅ GOOD: Starts with "Use when", describes problem, no workflow
+description: Use when tests have race conditions, timing dependencies, or pass/fail inconsistently
+
+# ✅ GOOD: Technology-specific skill with explicit trigger
+description: Use when using React Router and handling authentication redirects
+```
+
+### 2. Keyword Coverage
+
+Use words Claude would search for:
+- Error messages: "Hook timed out", "ENOTEMPTY", "race condition"
+- Symptoms: "flaky", "hanging", "zombie", "pollution"
+- Synonyms: "timeout/hang/freeze", "cleanup/teardown/afterEach"
+- Tools: Actual commands, library names, file types
+
+### 3. Descriptive Naming
+
+**Use active voice, verb-first:**
+- ✅ `creating-skills` not `skill-creation`
+- ✅ `condition-based-waiting` not `async-test-helpers`
+
+### 4. Token Efficiency (Critical)
+
+**Problem:** getting-started and frequently-referenced skills load into EVERY conversation. Every token counts.
+
+**Target word counts:**
+- getting-started workflows: <150 words each
+- Frequently-loaded skills: <200 words total
+- Other skills: <500 words (still be concise)
+
+**Techniques:**
+
+**Move details to tool help:**
+```bash
+# ❌ BAD: Document all flags in SKILL.md
+search-conversations supports --text, --both, --after DATE, --before DATE, --limit N
+
+# ✅ GOOD: Reference --help
+search-conversations supports multiple modes and filters. Run --help for details.
+```
+
+**Use cross-references:**
+```markdown
+# ❌ BAD: Repeat workflow details
+When searching, dispatch subagent with template...
+[20 lines of repeated instructions]
+
+# ✅ GOOD: Reference other skill
+Always use subagents (50-100x context savings). REQUIRED: Use [other-skill-name] for workflow.
+```
+
+**Compress examples:**
+```markdown
+# ❌ BAD: Verbose example (42 words)
+your human partner: "How did we handle authentication errors in React Router before?"
+You: I'll search past conversations for React Router authentication patterns.
+[Dispatch subagent with search query: "React Router authentication error handling 401"]
+
+# ✅ GOOD: Minimal example (20 words)
+Partner: "How did we handle auth errors in React Router?"
+You: Searching...
+[Dispatch subagent → synthesis]
+```
+
+**Eliminate redundancy:**
+- Don't repeat what's in cross-referenced skills
+- Don't explain what's obvious from command
+- Don't include multiple examples of same pattern
+
+**Verification:**
+```bash
+wc -w skills/path/SKILL.md
+# getting-started workflows: aim for <150 each
+# Other frequently-loaded: aim for <200 total
+```
+
+**Name by what you DO or core insight:**
+- ✅ `condition-based-waiting` > `async-test-helpers`
+- ✅ `using-skills` not `skill-usage`
+- ✅ `flatten-with-flags` > `data-structure-refactoring`
+- ✅ `root-cause-tracing` > `debugging-techniques`
+
+**Gerunds (-ing) work well for processes:**
+- `creating-skills`, `testing-skills`, `debugging-with-logs`
+- Active, describes the action you're taking
+
+### 4. Cross-Referencing Other Skills
+
+**When writing documentation that references other skills:**
+
+Use skill name only, with explicit requirement markers:
+- ✅ Good: `**REQUIRED SUB-SKILL:** Use superpowers:test-driven-development`
+- ✅ Good: `**REQUIRED BACKGROUND:** You MUST understand superpowers:systematic-debugging`
+- ❌ Bad: `See skills/testing/test-driven-development` (unclear if required)
+- ❌ Bad: `@skills/testing/test-driven-development/SKILL.md` (force-loads, burns context)
+
+**Why no @ links:** `@` syntax force-loads files immediately, consuming 200k+ context before you need them.
+
+## Flowchart Usage
+
+```dot
+digraph when_flowchart {
+    "Need to show information?" [shape=diamond];
+    "Decision where I might go wrong?" [shape=diamond];
+    "Use markdown" [shape=box];
+    "Small inline flowchart" [shape=box];
+
+    "Need to show information?" -> "Decision where I might go wrong?" [label="yes"];
+    "Decision where I might go wrong?" -> "Small inline flowchart" [label="yes"];
+    "Decision where I might go wrong?" -> "Use markdown" [label="no"];
+}
+```
+
+**Use flowcharts ONLY for:**
+- Non-obvious decision points
+- Process loops where you might stop too early
+- "When to use A vs B" decisions
+
+**Never use flowcharts for:**
+- Reference material → Tables, lists
+- Code examples → Markdown blocks
+- Linear instructions → Numbered lists
+- Labels without semantic meaning (step1, helper2)
+
+See @graphviz-conventions.dot for graphviz style rules.
+
+**Visualizing for your human partner:** Use `render-graphs.js` in this directory to render a skill's flowcharts to SVG:
+```bash
+./render-graphs.js ../some-skill           # Each diagram separately
+./render-graphs.js ../some-skill --combine # All diagrams in one SVG
+```
+
+## Code Examples
+
+**One excellent example beats many mediocre ones**
+
+Choose most relevant language:
+- Testing techniques → TypeScript/JavaScript
+- System debugging → Shell/Python
+- Data processing → Python
+
+**Good example:**
+- Complete and runnable
+- Well-commented explaining WHY
+- From real scenario
+- Shows pattern clearly
+- Ready to adapt (not generic template)
+
+**Don't:**
+- Implement in 5+ languages
+- Create fill-in-the-blank templates
+- Write contrived examples
+
+You're good at porting - one great example is enough.
+
+## File Organization
+
+### Self-Contained Skill
+```
+defense-in-depth/
+  SKILL.md    # Everything inline
+```
+When: All content fits, no heavy reference needed
+
+### Skill with Reusable Tool
+```
+condition-based-waiting/
+  SKILL.md    # Overview + patterns
+  example.ts  # Working helpers to adapt
+```
+When: Tool is reusable code, not just narrative
+
+### Skill with Heavy Reference
+```
+pptx/
+  SKILL.md       # Overview + workflows
+  pptxgenjs.md   # 600 lines API reference
+  ooxml.md       # 500 lines XML structure
+  scripts/       # Executable tools
+```
+When: Reference material too large for inline
+
+## The Iron Law (Same as TDD)
+
+```
+NO SKILL WITHOUT A FAILING TEST FIRST
+```
+
+This applies to NEW skills AND EDITS to existing skills.
+
+Write skill before testing? Delete it. Start over.
+Edit skill without testing? Same violation.
+
+**No exceptions:**
+- Not for "simple additions"
+- Not for "just adding a section"
+- Not for "documentation updates"
+- Don't keep untested changes as "reference"
+- Don't "adapt" while running tests
+- Delete means delete
+
+**REQUIRED BACKGROUND:** The superpowers:test-driven-development skill explains why this matters. Same principles apply to documentation.
+
+## Testing All Skill Types
+
+Different skill types need different test approaches:
+
+### Discipline-Enforcing Skills (rules/requirements)
+
+**Examples:** TDD, verification-before-completion, designing-before-coding
+
+**Test with:**
+- Academic questions: Do they understand the rules?
+- Pressure scenarios: Do they comply under stress?
+- Multiple pressures combined: time + sunk cost + exhaustion
+- Identify rationalizations and add explicit counters
+
+**Success criteria:** Agent follows rule under maximum pressure
+
+### Technique Skills (how-to guides)
+
+**Examples:** condition-based-waiting, root-cause-tracing, defensive-programming
+
+**Test with:**
+- Application scenarios: Can they apply the technique correctly?
+- Variation scenarios: Do they handle edge cases?
+- Missing information tests: Do instructions have gaps?
+
+**Success criteria:** Agent successfully applies technique to new scenario
+
+### Pattern Skills (mental models)
+
+**Examples:** reducing-complexity, information-hiding concepts
+
+**Test with:**
+- Recognition scenarios: Do they recognize when pattern applies?
+- Application scenarios: Can they use the mental model?
+- Counter-examples: Do they know when NOT to apply?
+
+**Success criteria:** Agent correctly identifies when/how to apply pattern
+
+### Reference Skills (documentation/APIs)
+
+**Examples:** API documentation, command references, library guides
+
+**Test with:**
+- Retrieval scenarios: Can they find the right information?
+- Application scenarios: Can they use what they found correctly?
+- Gap testing: Are common use cases covered?
+
+**Success criteria:** Agent finds and correctly applies reference information
+
+## Common Rationalizations for Skipping Testing
+
+| Excuse | Reality |
+|--------|---------|
+| "Skill is obviously clear" | Clear to you ≠ clear to other agents. Test it. |
+| "It's just a reference" | References can have gaps, unclear sections. Test retrieval. |
+| "Testing is overkill" | Untested skills have issues. Always. 15 min testing saves hours. |
+| "I'll test if problems emerge" | Problems = agents can't use skill. Test BEFORE deploying. |
+| "Too tedious to test" | Testing is less tedious than debugging bad skill in production. |
+| "I'm confident it's good" | Overconfidence guarantees issues. Test anyway. |
+| "Academic review is enough" | Reading ≠ using. Test application scenarios. |
+| "No time to test" | Deploying untested skill wastes more time fixing it later. |
+
+**All of these mean: Test before deploying. No exceptions.**
+
+## Bulletproofing Skills Against Rationalization
+
+Skills that enforce discipline (like TDD) need to resist rationalization. Agents are smart and will find loopholes when under pressure.
+
+**Psychology note:** Understanding WHY persuasion techniques work helps you apply them systematically. See persuasion-principles.md for research foundation (Cialdini, 2021; Meincke et al., 2025) on authority, commitment, scarcity, social proof, and unity principles.
+
+### Close Every Loophole Explicitly
+
+Don't just state the rule - forbid specific workarounds:
+
+<Bad>
+```markdown
+Write code before test? Delete it.
+```
+</Bad>
+
+<Good>
+```markdown
+Write code before test? Delete it. Start over.
+
+**No exceptions:**
+- Don't keep it as "reference"
+- Don't "adapt" it while writing tests
+- Don't look at it
+- Delete means delete
+```
+</Good>
+
+### Address "Spirit vs Letter" Arguments
+
+Add foundational principle early:
+
+```markdown
+**Violating the letter of the rules is violating the spirit of the rules.**
+```
+
+This cuts off entire class of "I'm following the spirit" rationalizations.
+
+### Build Rationalization Table
+
+Capture rationalizations from baseline testing (see Testing section below). Every excuse agents make goes in the table:
+
+```markdown
+| Excuse | Reality |
+|--------|---------|
+| "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
+| "I'll test after" | Tests passing immediately prove nothing. |
+| "Tests after achieve same goals" | Tests-after = "what does this do?" Tests-first = "what should this do?" |
+```
+
+### Create Red Flags List
+
+Make it easy for agents to self-check when rationalizing:
+
+```markdown
+## Red Flags - STOP and Start Over
+
+- Code before test
+- "I already manually tested it"
+- "Tests after achieve the same purpose"
+- "It's about spirit not ritual"
+- "This is different because..."
+
+**All of these mean: Delete code. Start over with TDD.**
+```
+
+### Update CSO for Violation Symptoms
+
+Add to description: symptoms of when you're ABOUT to violate the rule:
+
+```yaml
+description: use when implementing any feature or bugfix, before writing implementation code
+```
+
+## RED-GREEN-REFACTOR for Skills
+
+Follow the TDD cycle:
+
+### RED: Write Failing Test (Baseline)
+
+Run pressure scenario with subagent WITHOUT the skill. Document exact behavior:
+- What choices did they make?
+- What rationalizations did they use (verbatim)?
+- Which pressures triggered violations?
+
+This is "watch the test fail" - you must see what agents naturally do before writing the skill.
+
+### GREEN: Write Minimal Skill
+
+Write skill that addresses those specific rationalizations. Don't add extra content for hypothetical cases.
+
+Run same scenarios WITH skill. Agent should now comply.
+
+### REFACTOR: Close Loopholes
+
+Agent found new rationalization? Add explicit counter. Re-test until bulletproof.
+
+**Testing methodology:** See @testing-skills-with-subagents.md for the complete testing methodology:
+- How to write pressure scenarios
+- Pressure types (time, sunk cost, authority, exhaustion)
+- Plugging holes systematically
+- Meta-testing techniques
+
+## Anti-Patterns
+
+### ❌ Narrative Example
+"In session 2025-10-03, we found empty projectDir caused..."
+**Why bad:** Too specific, not reusable
+
+### ❌ Multi-Language Dilution
+example-js.js, example-py.py, example-go.go
+**Why bad:** Mediocre quality, maintenance burden
+
+### ❌ Code in Flowcharts
+```dot
+step1 [label="import fs"];
+step2 [label="read file"];
+```
+**Why bad:** Can't copy-paste, hard to read
+
+### ❌ Generic Labels
+helper1, helper2, step3, pattern4
+**Why bad:** Labels should have semantic meaning
+
+## STOP: Before Moving to Next Skill
+
+**After writing ANY skill, you MUST STOP and complete the deployment process.**
+
+**Do NOT:**
+- Create multiple skills in batch without testing each
+- Move to next skill before current one is verified
+- Skip testing because "batching is more efficient"
+
+**The deployment checklist below is MANDATORY for EACH skill.**
+
+Deploying untested skills = deploying untested code. It's a violation of quality standards.
+
+## Skill Creation Checklist (TDD Adapted)
+
+**IMPORTANT: Use TodoWrite to create todos for EACH checklist item below.**
+
+**RED Phase - Write Failing Test:**
+- [ ] Create pressure scenarios (3+ combined pressures for discipline skills)
+- [ ] Run scenarios WITHOUT skill - document baseline behavior verbatim
+- [ ] Identify patterns in rationalizations/failures
+
+**GREEN Phase - Write Minimal Skill:**
+- [ ] Name uses only letters, numbers, hyphens (no parentheses/special chars)
+- [ ] YAML frontmatter with only name and description (max 1024 chars)
+- [ ] Description starts with "Use when..." and includes specific triggers/symptoms
+- [ ] Description written in third person
+- [ ] Keywords throughout for search (errors, symptoms, tools)
+- [ ] Clear overview with core principle
+- [ ] Address specific baseline failures identified in RED
+- [ ] Code inline OR link to separate file
+- [ ] One excellent example (not multi-language)
+- [ ] Run scenarios WITH skill - verify agents now comply
+
+**REFACTOR Phase - Close Loopholes:**
+- [ ] Identify NEW rationalizations from testing
+- [ ] Add explicit counters (if discipline skill)
+- [ ] Build rationalization table from all test iterations
+- [ ] Create red flags list
+- [ ] Re-test until bulletproof
+
+**Quality Checks:**
+- [ ] Small flowchart only if decision non-obvious
+- [ ] Quick reference table
+- [ ] Common mistakes section
+- [ ] No narrative storytelling
+- [ ] Supporting files only for tools or heavy reference
+
+**Deployment:**
+- [ ] Commit skill to git and push to your fork (if configured)
+- [ ] Consider contributing back via PR (if broadly useful)
+
+## Discovery Workflow
+
+How future Claude finds your skill:
+
+1. **Encounters problem** ("tests are flaky")
+3. **Finds SKILL** (description matches)
+4. **Scans overview** (is this relevant?)
+5. **Reads patterns** (quick reference table)
+6. **Loads example** (only when implementing)
+
+**Optimize for this flow** - put searchable terms early and often.
+
+## The Bottom Line
+
+**Creating skills IS TDD for process documentation.**
+
+Same Iron Law: No skill without failing test first.
+Same cycle: RED (baseline) → GREEN (write skill) → REFACTOR (close loopholes).
+Same benefits: Better quality, fewer surprises, bulletproof results.
+
+If you follow TDD for code, follow it for skills. It's the same discipline applied to documentation.
+
+Base directory for this skill: file:///Users/liyou/.config/opencode/skills/superpowers/writing-skills
+Relative paths in this skill (e.g., scripts/, reference/) are relative to this base directory.
+Note: file list is sampled.
+
+<skill_files>
+<file>/Users/liyou/.config/opencode/skills/superpowers/writing-skills/graphviz-conventions.dot</file>
+<file>/Users/liyou/.config/opencode/skills/superpowers/writing-skills/persuasion-principles.md</file>
+<file>/Users/liyou/.config/opencode/skills/superpowers/writing-skills/examples/CLAUDE_MD_TESTING.md</file>
+<file>/Users/liyou/.config/opencode/skills/superpowers/writing-skills/anthropic-best-practices.md</file>
+<file>/Users/liyou/.config/opencode/skills/superpowers/writing-skills/render-graphs.js</file>
+<file>/Users/liyou/.config/opencode/skills/superpowers/writing-skills/testing-skills-with-subagents.md</file>
+</skill_files>
+</skill_content>
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 6.7s)
+
+Using **brainstorming** to explore your idea, and **writing-skills** as reference for later implementation.
+
+Let me first understand the current project state better.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/AGENTS.md"
+}
+```
+
+**Output:**
+```
+<file>
+00001| # AGENTS.md - VoyahSpaceLink AI Agent Guidelines
+00002| 
+00003| > **核心原则**: 精简上下文 + 严格约束 + 按需加载详细规则
+00004| 
+00005| ---
+00006| 
+00007| ## 1. 项目概览
+00008| 
+00009| **VoyahSpaceLink**: 岚图汽车 Android SDK，实现车机与手机 BLE/WiFi 安全互联。
+00010| 
+00011| | 项目      | 说明                                             |
+00012| |---------|------------------------------------------------|
+00013| | 平台要求    | Android 12+ (API 31+)                          |
+00014| | 语言      | 纯 Java                                         |
+00015| | Java 版本 | 21 (sourceCompatibility & targetCompatibility) |
+00016| | AGP 版本  | 8.13.0                                         |
+00017| | 核心能力    | 设备发现、X.509 证书认证、BLE/WiFi 通道、H.264 投屏           |
+00018| 
+00019| ---
+00020| 
+00021| ## 2. 构建与测试
+00022| 
+00023| ```bash
+00024| # 快速编译（推荐，验证完整依赖链）
+00025| ./gradlew :thanos:compileDebugJavaWithJavac
+00026| 
+00027| # 单模块编译
+00028| ./gradlew :connect-lib:compileDebugJavaWithJavac
+00029| 
+00030| # 构建应用
+00031| ./gradlew :thanos:assembleDebug    # SDK 测试应用
+00032| ./gradlew :app:assembleDebug       # Service 宿主
+00033| 
+00034| # 运行测试
+00035| ./gradlew test                     # 全部测试
+00036| ./gradlew :common:test --tests "ProtocolCodecTest"  # 单个测试类
+00037| ```
+00038| 
+00039| ---
+00040| 
+00041| ## 3. 架构约束
+00042| 
+00043| ### 3.1 分层依赖（只允许从上到下）
+00044| 
+00045| ```
+00046| App (thanos) → SDK (*-sdk) → API (spacelink-api) → Service → Lib (*-lib) → Common
+00047| ```
+00048| 
+00049| **禁止反向依赖**：
+00050| 
+00051| - `common` 禁止依赖任何其他模块
+00052| - `*-lib` 禁止依赖 `*-sdk`
+00053| - `*-sdk` 禁止依赖 `spacelink-service`
+00054| 
+00055| ### 3.2 文件访问权限
+00056| 
+00057| | 分区    | 路径                        | 权限     | 说明         |
+00058| |-------|---------------------------|--------|------------|
+00059| | 🔴 禁区 | `spacelink-api/**/*.aidl` | **只读** | AIDL 修改需审批 |
+00060| | 🟡 受控 | `common/**`               | 需确认    | 修改前声明影响范围  |
+00061| | 🟢 开放 | `*-lib/**`, `*-sdk/**`    | 读写     | 正常开发区域     |
+00062| | ⚪ 配置  | `*.gradle`, `*.xml`       | 谨慎     | 需说明修改原因    |
+00063| 
+00064| ### 3.3 Common 模块约束
+00065| 
+00066| `common` 是纯 Java 模块，**禁止**：
+00067| 
+00068| - 引入 Android `Context`、`Activity`、`Service`
+00069| - 依赖任何其他项目模块
+00070| 
+00071| ---
+00072| 
+00073| ## 4. 核心编码规范（Top 12）
+00074| 
+00075| > 完整规范见 `docs/rules/coding-style.md`
+00076| 
+00077| ### 4.1 导入规范
+00078| 
+00079| ```java
+00080| // ❌ 禁止
+00081| 
+00082| import java.util.*;                    // 通配符导入
+00083| java.util.List<String>list;           // 内联全限定名
+00084| 
+00085| // ✅ 正确
+00086| import java.util.List;
+00087| import java.util.ArrayList;
+00088| 
+00089| List<String> list = new ArrayList<>();
+00090| ```
+00091| 
+00092| ### 4.2 日志规范
+00093| 
+00094| ```java
+00095| // ❌ 禁止
+00096| Log.d(TAG, "message");                 // android.util.Log
+00097| for(
+00098| byte b :data)SLog.
+00099| 
+00100| d(TAG, b);    // 循环内打日志
+00101| 
+00102| // ✅ 正确
+00103| SLog.
+00104| 
+00105| d(TAG, "message");
+00106| SLog.
+00107| 
+00108| d(TAG, "data length: "+data.length);
+00109| ```
+00110| 
+00111| ### 4.3 线程安全
+00112| 
+00113| ```java
+00114| // ❌ 禁止（多线程场景）
+00115| List<Device> devices = new ArrayList<>();
+00116| 
+00117| // ✅ 正确
+00118| List<Device> devices = Collections.synchronizedList(new ArrayList<>());
+00119| Map<String, Device> map = new ConcurrentHashMap<>();
+00120| ```
+00121| 
+00122| ### 4.4 异常处理
+00123| 
+00124| ```java
+00125| // ❌ 禁止
+00126| try{...}catch(Exception e){e.
+00127| 
+00128| printStackTrace(); }
+00129| 
+00130| // ✅ 正确
+00131|         try{...}catch(
+00132| IOException e){
+00133|         SLog.
+00134| 
+00135| e(TAG, "操作失败",e);
+00136|     throw new
+00137| 
+00138| RuntimeException("无法完成操作",e);
+00139| }
+00140| ```
+00141| 
+00142| ### 4.5 魔法值
+00143| 
+00144| ```java
+00145| // ❌ 禁止
+00146| if(status ==133){...}
+00147| 
+00148| // ✅ 正确
+00149| private static final int GATT_ERROR = 133;
+00150| if(status ==GATT_ERROR){...}
+00151| ```
+00152| 
+00153| ### 4.6 资源管理
+00154| 
+00155| ```java
+00156| // ❌ 禁止
+00157| InputStream is = new FileInputStream(file);
+00158| // 忘记 close
+00159| 
+00160| // ✅ 正确
+00161| try(
+00162| InputStream is = new FileInputStream(file)){
+00163|         // 使用资源
+00164|         }
+00165| ```
+00166| 
+00167| ### 4.7 空值检查
+00168| 
+00169| ```java
+00170| // ❌ 禁止
+00171| String name = device.getName();
+00172| int len = name.length();  // NPE 风险
+00173| 
+00174| // ✅ 正确
+00175| String name = device.getName();
+00176| if(name !=null){
+00177| int len = name.length();
+00178| }
+00179| ```
+00180| 
+00181| ### 4.8 代码清洁
+00182| 
+00183| - ❌ 禁止留下注释掉的旧代码
+00184| - ❌ 禁止留下未使用的 import/变量/方法
+00185| - ❌ 禁止重复代码块（必须提取公共方法）
+00186| 
+00187| ### 4.9 公共方法注释
+00188| 
+00189| SDK 模块（`*-sdk`）的 public 方法**必须**包含：
+00190| 
+00191| - 方法简述 + 线程安全说明 + 调用模式（同步/异步）
+00192| - `@param`、`@return`、`@since` 标签
+00193| 
+00194| > 完整模板见 `docs/rules/sdk-api.md`
+00195| 
+00196| ### 4.10 设计原则
+00197| 
+00198| - **KISS**: Keep It Simple, Stupid
+00199| - **YAGNI**: You Aren't Gonna Need It
+00200| - **SRP**: 单一职责，一个类只做一件事
+00201| - **DRY**: Don't Repeat Yourself（但避免过度抽象）
+00202| 
+00203| ---
+00204| 
+00205| ## 5. AI 禁止事项
+00206| 
+00207| ### 5.1 流程禁止
+00208| 
+00209| | # | 禁止行为                   |
+00210| |---|------------------------|
+00211| | 1 | ❌ 用户未确认设计前，禁止编写实现代码    |
+00212| | 2 | ❌ 禁止删除用户未明确要求删除的文件     |
+00213| | 3 | ❌ 禁止声称"编译通过"但未实际运行构建命令 |
+00214| | 4 | ❌ 禁止在未阅读相关设计文档前修改核心模块  |
+00215| 
+00216| ### 5.2 文件禁止
+00217| 
+00218| | # | 禁止行为                                   |
+00219| |---|----------------------------------------|
+00220| | 5 | ❌ 禁止修改 `spacelink-api/**/*.aidl`（只读禁区） |
+00221| | 6 | ❌ 禁止在 `common` 模块引入 Android 依赖         |
+00222| | 7 | ❌ 禁止创建违反依赖方向的 import                   |
+00223| 
+00224| ### 5.3 代码禁止
+00225| 
+00226| | #  | 禁止行为                                  |
+00227| |----|---------------------------------------|
+00228| | 8  | ❌ 禁止留下注释掉的旧代码                         |
+00229| | 9  | ❌ 禁止留下未使用的 import/变量/方法               |
+00230| | 10 | ❌ 禁止使用 `android.util.Log`（必须用 `SLog`） |
+00231| | 11 | ❌ 禁止使用 `import *` 或内联全限定类名            |
+00232| | 12 | ❌ 禁止吞掉异常（catch 后必须日志+处理）              |
+00233| | 13 | ❌ 禁止硬编码魔法值                            |
+00234| | 14 | ❌ 禁止在日志中打印敏感信息（密钥、证书、用户ID）            |
+00235| 
+00236| ---
+00237| 
+00238| ## 6. 代码输出检查清单
+00239| 
+00240| 提交代码前，AI **必须**验证：
+00241| 
+00242| - [ ] 运行 `./gradlew :thanos:compileDebugJavaWithJavac` 通过
+00243| - [ ] 无新增未使用的 import
+00244| - [ ] 无注释掉的旧代码
+00245| - [ ] 修改的公共方法有完整 Javadoc（SDK 模块）
+00246| - [ ] 涉及多线程的代码使用线程安全集合
+00247| - [ ] 异常处理正确（日志 + 重抛/处理）
+00248| - [ ] 无硬编码魔法值
+00249| 
+00250| ---
+00251| 
+00252| ## 7. 规则索引（按需加载）
+00253| 
+00254| **修改特定模块前，必须先阅读对应的规则文档**：
+00255| 
+00256| | 修改场景        | 必读规则                                | 必读设计文档                                           |
+00257| |-------------|-------------------------------------|--------------------------------------------------|
+00258| | 编码风格问题      | `docs/rules/coding-style.md`        | -                                                |
+00259| | BLE 相关代码    | `docs/rules/ble-development.md`     | `docs/design/ble-authentication-design.md`       |
+00260| | WiFi 相关代码   | `docs/rules/wifi-development.md`    | `docs/design/wifi-connection-design.md`          |
+00261| | Channel 通道  | `docs/rules/channel-development.md` | `docs/design/channel-design.md`                  |
+00262| | 投屏模块        | `docs/rules/cast-development.md`    | `docs/design/cast-design.md`                     |
+00263| | SDK 公共 API  | `docs/rules/sdk-api.md`             | `docs/design/sdk-layer-design.md`                |
+00264| | 协议编解码       | -                                   | `docs/design/protocol-codec-design.md`           |
+00265| | 设备发现/绑定     | -                                   | `docs/design/device-discovery-binding-design.md` |
+00266| | Service/SPI | -                                   | `docs/design/spi-service-design.md`              |
+00267| | 测试相关        | `docs/rules/testing.md`             | -                                                |
+00268| | Git 提交      | `docs/rules/git-commit.md`          | -                                                |
+00269| | 安全相关        | `docs/rules/security.md`            | -                                                |
+00270| 
+00271| ---
+00272| 
+00273| ## 8. 关键类参考
+00274| 
+00275| ### 8.1 核心入口
+00276| 
+00277| | 模块                | 类                  | 职责               |
+00278| |-------------------|--------------------|------------------|
+00279| | spacelink-service | `SpaceLinkService` | 服务入口（SPI 加载）     |
+00280| | spacelink-service | `Dispatcher`       | Intent Action 路由 |
+00281| | connect-lib       | `ConnectManager`   | 连接编排器            |
+00282| | channel-lib       | `ChannelManager`   | 通道管理（单例）         |
+00283| 
+00284| ### 8.2 BLE 连接
+00285| 
+00286| | 模块          | 类                             | 职责               |
+00287| |-------------|-------------------------------|------------------|
+00288| | connect-lib | `CarBleConnector`             | GATT Server（车端）  |
+00289| | connect-lib | `DeviceBleConnector`          | GATT Client（设备端） |
+00290| | connect-lib | `ServerAuthenticationHandler` | 车端 X.509 认证      |
+00291| | connect-lib | `ClientAuthenticationHandler` | 设备端 X.509 认证     |
+00292| | connect-lib | `TxQueueManager`              | BLE 写操作串行化       |
+00293| 
+00294| ### 8.3 WiFi 连接
+00295| 
+00296| | 模块          | 类                     | 职责         |
+00297| |-------------|-----------------------|------------|
+00298| | connect-lib | `CarWifiConnector`    | WiFi 热点管理  |
+00299| | connect-lib | `DeviceWifiConnector` | WiFi 客户端连接 |
+00300| 
+00301| ### 8.4 投屏
+00302| 
+00303| | 模块       | 类              | 职责       |
+00304| |----------|----------------|----------|
+00305| | cast-lib | `CastSource`   | 发送端控制器   |
+00306| | cast-lib | `CastSink`     | 接收端控制器   |
+00307| | cast-lib | `VideoEncoder` | H.264 编码 |
+00308| | cast-lib | `VideoDecoder` | H.264 解码 |
+00309| 
+00310| ### 8.5 协议与工具
+00311| 
+00312| | 模块     | 类                   | 职责          |
+00313| |--------|---------------------|-------------|
+00314| | common | `SmartLinkProtocol` | 协议命令定义      |
+00315| | common | `ProtocolCodec`     | 包编解码        |
+00316| | common | `BleConstants`      | BLE UUID 常量 |
+00317| 
+00318| ---
+00319| 
+00320| ## 9. 协议常量速查
+00321| 
+00322| ### 9.1 BLE 认证命令 (0x0100-0x01FF)
+00323| 
+00324| ```java
+00325| CMD_AUTH_CHALLENGE  =0x0101  // 认证挑战
+00326| CMD_AUTH_RESPONSE   =0x0103  // 认证响应
+00327| CMD_AUTH_RESULT     =0x0104  // 认证结果 (0x01=成功, 0x00=失败, 0x02=离线解绑)
+00328| CMD_CERT_EXCHANGE   =0x0107  // 证书交换
+00329| ```
+00330| 
+00331| ### 9.2 WiFi 命令 (0x0200-0x02FF)
+00332| 
+00333| ```java
+00334| CMD_WIFI_HOTSPOT_INFO =0x0201  // 热点信息
+00335| CMD_WIFI_CONNECT_REQ  =0x0202  // 连接请求
+00336| CMD_WIFI_DEVICE_INFO  =0x0203  // 设备信息
+00337| ```
+00338| 
+00339| ### 9.3 错误码分段
+00340| 
+00341| | 范围        | 层级    | 范围        | 层级        |
+00342| |-----------|-------|-----------|-----------|
+00343| | 1000-1099 | SDK 层 | 3000-3099 | WiFi 层    |
+00344| | 2000-2099 | BLE 层 | 4000-4099 | Channel 层 |
+00345| 
+00346| ---
+00347| 
+00348| ## 10. BLE UUID
+00349| 
+00350| ```java
+00351| CUSTOM_SERVICE_UUID ="564F5941-..."  // 主服务
+00352| RX_CHAR_UUID        ="564F5942-..."  // 写入（Device→Car）
+00353| TX_CHAR_UUID        ="564F5943-..."  // 通知（Car→Device）
+00354| AUTH_CHAR_UUID      ="564F5944-..."  // 认证数据交换
+00355| ```
+00356| 
+00357| ---
+00358| 
+00359| ## 11. Git 提交格式
+00360| 
+00361| ```
+00362| [JiraNo]: H37ZIVI-XXXX [Subject]: 简述 [Type]: feat/fix/refactor/docs/test
+00363| ```
+00364| 
+00365| **Type 说明**：
+00366| 
+00367| - `feat`: 新功能
+00368| - `fix`: Bug 修复
+00369| - `refactor`: 重构（不改变功能）
+00370| - `docs`: 文档更新
+00371| - `test`: 测试相关
+00372| 
+00373| > 完整规范见 `docs/rules/git-commit.md`
+00374| 
+
+(End of file - total 374 lines)
+</file>
+```
+
+**Tool: glob**
+
+**Input:**
+```json
+{
+  "pattern": "docs/rules/*.md"
+}
+```
+
+**Output:**
+```
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/ble-development.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/testing.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/git-commit.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/security.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/cast-development.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/channel-development.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/wifi-development.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/sdk-api.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/coding-style.md
+```
+
+**Tool: glob**
+
+**Input:**
+```json
+{
+  "pattern": "docs/design/*.md"
+}
+```
+
+**Output:**
+```
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/design/channel-design.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/design/cast-design.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/design/device-discovery-binding-design.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/design/wifi-connection-design.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/design/spi-service-design.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/design/sdk-layer-design.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/design/protocol-codec-design.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/design/ble-authentication-design.md
+/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/design/maven-publish-design.md
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 23.3s)
+
+好的，我已经了解了你当前的文档驱动开发体系。让我来梳理一下你的需求。
+
+你目前的 AGENTS.md 体系包含几个层次：
+1. **AGENTS.md** - 主入口，精简上下文 + 按需加载
+2. **docs/rules/*.md** - 9 个规则文件（编码风格、BLE、WiFi、Channel 等）
+3. **docs/design/*.md** - 9 个设计文档
+
+核心模式是：**主文件放约束摘要 + 规则索引表，详细规则按需加载**。
+
+让我问几个关键问题来确定方向：
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "question": "你的其他历史项目主要是什么技术栈？这决定了模板需要覆盖哪些语言/平台的默认规则。",
+      "header": "目标项目技术栈",
+      "options": [
+        {
+          "label": "Android (Java/Kotlin)",
+          "description": "和当前项目类似的 Android 项目"
+        },
+        {
+          "label": "iOS (Swift/ObjC)",
+          "description": "iOS 移动端项目"
+        },
+        {
+          "label": "前端 (TS/JS/Vue/React)",
+          "description": "Web 前端项目"
+        },
+        {
+          "label": "后端 (Java/Go/Python)",
+          "description": "服务端项目"
+        },
+        {
+          "label": "混合多种技术栈",
+          "description": "不同项目有不同技术栈，需要通用框架"
+        }
+      ],
+      "multiple": true
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "你的其他历史项目主要是什么技术栈？这决定了模板需要覆盖哪些语言/平台的默认规则。"="Android (Java/Kotlin)". You can now continue with the user's answers in mind.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 23.9s)
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "question": "你希望的落地方式是哪种？",
+      "header": "落地方式",
+      "options": [
+        {
+          "label": "Skill + 脚本 (推荐)",
+          "description": "创建一个 Skill 指导流程，配合 shell 脚本自动生成 AGENTS.md + docs/ 框架"
+        },
+        {
+          "label": "纯 Skill",
+          "description": "只创建 Skill，通过 AI 交互式引导生成文档"
+        },
+        {
+          "label": "纯脚本/CLI 工具",
+          "description": "一个独立的 shell 脚本，运行后交互式生成全套框架"
+        }
+      ],
+      "multiple": false
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "你希望的落地方式是哪种？"="Skill + 脚本 (推荐)". You can now continue with the user's answers in mind.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 36.0s)
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "question": "你希望从当前 AGENTS.md 中抽取哪些内容作为通用模板？（多选）",
+      "header": "模板内容范围",
+      "options": [
+        {
+          "label": "架构分层约束",
+          "description": "模块依赖方向、文件访问权限、禁区设置"
+        },
+        {
+          "label": "编码规范模板",
+          "description": "导入、日志、线程安全、异常、资源管理等"
+        },
+        {
+          "label": "AI 行为约束",
+          "description": "流程禁止、文件禁止、代码禁止事项"
+        },
+        {
+          "label": "规则索引体系",
+          "description": "docs/rules + docs/design 的按需加载架构"
+        },
+        {
+          "label": "构建/测试命令模板",
+          "description": "常用构建、测试命令的模板化"
+        },
+        {
+          "label": "Git 提交规范",
+          "description": "commit message 格式约束"
+        },
+        {
+          "label": "全部",
+          "description": "上述所有内容都要模板化"
+        }
+      ],
+      "multiple": true
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "你希望从当前 AGENTS.md 中抽取哪些内容作为通用模板？（多选）"="全部". You can now continue with the user's answers in mind.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 30.8s)
+
+好的，需求很清晰了。让我来设计方案。
+
+## 设计方案
+
+**目标**：创建一个 Skill + 脚本组合，能在任何 Android (Java/Kotlin) 项目中快速搭建文档驱动开发的完整框架。
+
+### 两个产物
+
+1. **Skill: `agents-md-scaffold`** - 指导 AI 如何使用脚本、如何根据项目特征定制 AGENTS.md
+2. **Shell 脚本: `scaffold.sh`** - 交互式生成 AGENTS.md + docs/rules/ + docs/design/ 目录框架
+
+### 框架结构（脚本生成的产物）
+
+```
+项目根/
+├── AGENTS.md                      # 主入口（从模板生成，填入项目信息）
+├── docs/
+│   ├── rules/
+│   │   ├── coding-style.md        # 编码风格（Android Java/Kotlin 通用）
+│   │   ├── git-commit.md          # Git 提交规范
+│   │   ├── testing.md             # 测试规范
+│   │   └── security.md            # 安全规范
+│   └── design/                    # 空目录，由团队按需填充
+│       └── .gitkeep
+```
+
+### AGENTS.md 模板的通用化策略
+
+从当前 AGENTS.md 中提取：
+- **项目概览** → 变量化（项目名、平台、语言、核心能力）
+- **构建命令** → 根据构建工具自动填充（Gradle/Maven）
+- **架构约束** → 提供模块依赖方向的模板，用户填入自己的层级
+- **编码规范** → Android Java/Kotlin 通用，保持不变
+- **AI 禁止事项** → 通用，与项目无关
+- **规则索引** → 根据实际 docs/ 内容动态生成
+- **关键类参考** → 提供空模板，用户填入
+- **Git 提交格式** → 可配置前缀格式
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "question": "这个方案看起来如何？有什么要调整的吗？",
+      "header": "方案确认",
+      "options": [
+        {
+          "label": "方案 OK，开始实现",
+          "description": "按这个方案开始写代码"
+        },
+        {
+          "label": "需要调整",
+          "description": "有一些想法需要讨论"
+        }
+      ],
+      "multiple": false
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "这个方案看起来如何？有什么要调整的吗？"="需要调整". You can now continue with the user's answers in mind.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 3.1s)
+
+你觉得哪些地方需要调整？请说说你的想法。
+
+---
+
+## User
+
+项目架构文档，需要AI阅读代码生成，跟目前项目保持一致
+其他具体模块的代码，类似目前项目的ble wifi相关的，按照实际项目，交互式引导生成
+整体框架需要保持跟现有项目一致
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 7.7s)
+
+
+
+明白了，核心调整点：
+
+1. **项目架构文档**（关键类参考、模块依赖等）→ AI 读代码自动生成，不是手动填
+2. **领域模块规则**（类似 BLE/WiFi 这种）→ 交互式引导，按实际项目动态生成
+3. **整体框架结构**与当前 VoyahSpaceLink 保持一致
+
+让我再看几个现有的 rules 文件，确保理解"保持一致"的含义。
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/coding-style.md"
+}
+```
+
+**Output:**
+```
+<file>
+00001| # 编码规范
+00002| 
+00003| ---
+00004| 
+00005| ## 基本原则
+00006| 
+00007| - **KISS**: Keep It Simple, Stupid - 简单直接
+00008| - **YAGNI**: You Aren't Gonna Need It - 不要提前设计
+00009| - **SRP**: 单一职责，一个类只做一件事
+00010| - **DRY**: Don't Repeat Yourself - 但避免过度抽象
+00011| 
+00012| ---
+00013| 
+00014| ## Java 代码风格
+00015| 
+00016| - 遵循 Google Java Style Guide
+00017| - 2 空格缩进，100 字符行限
+00018| - K&R 大括号风格
+00019| - Modifier 顺序:
+00020|   `public protected private abstract default static final transient volatile synchronized native strictfp`
+00021| 
+00022| ### 导入规范
+00023| 
+00024| - **禁止** `import *`
+00025| - **禁止**在代码中直接使用全限定类名，必须使用 `import` 语句
+00026| 
+00027| ```java
+00028| // ❌ 错误
+00029| android.content.Context context;
+00030| java.util.List<String> list = new java.util.ArrayList<>();
+00031| 
+00032| // ✅ 正确
+00033| import android.content.Context;
+00034| import java.util.ArrayList;
+00035| import java.util.List;
+00036| 
+00037| Context context;
+00038| List<String> list = new ArrayList<>();
+00039| ```
+00040| 
+00041| **例外**: 仅当存在类名冲突且无法通过别名解决时（极少情况）
+00042| 
+00043| ---
+00044| 
+00045| ## 日志规范
+00046| 
+00047| - **必须**使用 `SLog` 类，**禁止** `android.util.Log`
+00048| - **禁止**在循环或高频调用中打印日志
+00049| 
+00050| ```java
+00051| // ❌ 错误
+00052| for (byte b : data) {
+00053|     SLog.d(TAG, "byte: " + b);  // 大量日志
+00054| }
+00055| 
+00056| // ✅ 正确
+00057| SLog.d(TAG, "data length: " + data.length);
+00058| ```
+00059| 
+00060| ### Debug 场景
+00061| 
+00062| 需要循环打印时（仅 Debug），必须用 `DebugUtils` 包裹：
+00063| 
+00064| ```java
+00065| if (DebugUtils.isDebugMode()) {
+00066|     for (byte b : data) {
+00067|         DebugUtils.log("byte: " + b);
+00068|     }
+00069| }
+00070| ```
+00071| 
+00072| ---
+00073| 
+00074| ## 注释规范
+00075| 
+00076| - 公共方法必须有注释
+00077| - SDK 模块的 API 注释规范详见 [api-javadoc.md](api-javadoc.md)
+00078| - 注释说明"为什么"而非"做了什么"
+00079| - **禁止**冗余的 AI 思维链注释
+00080| 
+00081| ```java
+00082| // ❌ 不要这样写
+00083| // I think this might be null. Should we check it?
+00084| // Let's add a check here.
+00085| 
+00086| // ✅ 应该这样写
+00087| // 空值检查 (API 契约要求)
+00088| ```
+00089| 
+00090| ---
+00091| 
+00092| ## 质量底线
+00093| 
+00094| - 关键逻辑必须有日志
+00095| - 耗时操作必须异步
+00096| - 对外接口必须有参数校验
+00097| - 状态变更必须考虑线程安全
+00098| 
+00099| ---
+00100| 
+00101| ## 常见错误清单（必须避免）
+00102| 
+00103| ### 1. 过度封装 / 过度设计
+00104| 
+00105| ```java
+00106| // ❌ 禁止：创建不必要的抽象层
+00107| interface IFooHandler { void handle(); }
+00108| abstract class BaseFooHandler implements IFooHandler { ... }
+00109| class FooHandlerImpl extends BaseFooHandler { ... }
+00110| class FooHandlerFactory { ... }
+00111| 
+00112| // ✅ 正确：简单直接
+00113| class FooHandler { void handle() { ... } }
+00114| ```
+00115| 
+00116| ### 2. 遗留废弃代码
+00117| 
+00118| - ❌ 禁止留下被注释掉的旧代码
+00119| - ❌ 禁止留下未使用的变量/方法/import
+00120| - ✅ 修改时必须清理相关废弃代码
+00121| 
+00122| ### 3. 硬编码魔法值
+00123| 
+00124| ```java
+00125| // ❌ 禁止
+00126| if (status == 133) { ... }
+00127| 
+00128| // ✅ 必须使用常量
+00129| private static final int GATT_ERROR = 133;
+00130| if (status == GATT_ERROR) { ... }
+00131| ```
+00132| 
+00133| ### 4. 异常处理不当
+00134| 
+00135| ```java
+00136| // ❌ 禁止：吞掉异常
+00137| try {
+00138|     doSomething();
+00139| } catch (Exception e) {
+00140|     e.printStackTrace();
+00141| }
+00142| 
+00143| // ✅ 正确：处理或重新抛出
+00144| try {
+00145|     doSomething();
+00146| } catch (IOException e) {
+00147|     SLog.e(TAG, "操作失败", e);
+00148|     throw new RuntimeException("无法完成操作", e);
+00149| }
+00150| ```
+00151| 
+00152| ### 5. 资源泄漏
+00153| 
+00154| - ❌ 禁止忘记 close() 流、Cursor、Connection
+00155| - ❌ 禁止忘记在 onDestroy 中释放资源
+00156| - ✅ 使用 try-with-resources 或 finally 确保关闭
+00157| 
+00158| ### 6. 线程安全问题
+00159| 
+00160| ```java
+00161| // ❌ 禁止：多线程场景使用非线程安全集合
+00162| private List<Device> devices = new ArrayList<>();
+00163| 
+00164| // ✅ 正确：使用线程安全集合
+00165| private List<Device> devices = Collections.synchronizedList(new ArrayList<>());
+00166| private Map<String, Device> deviceMap = new ConcurrentHashMap<>();
+00167| ```
+00168| 
+00169| ### 7. 空值检查缺失
+00170| 
+00171| ```java
+00172| // ❌ 禁止：获取对象后直接使用
+00173| String name = device.getName();
+00174| int length = name.length();  // name 可能为 null!
+00175| 
+00176| // ✅ 正确：先检查空值
+00177| String name = device.getName();
+00178| if (name != null) {
+00179|     int length = name.length();
+00180| }
+00181| ```
+00182| 
+00183| ### 8. 其他
+00184| 
+00185| - ❌ 禁止在多处生成几乎相同的代码块，必须提取公共方法
+00186| - ❌ 禁止忽略边界条件（空集合、空字符串、0、负数）
+00187| - ❌ 禁止为单个功能引入大型库，简单功能用标准库实现
+00188| 
+
+(End of file - total 188 lines)
+</file>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/ble-development.md"
+}
+```
+
+**Output:**
+```
+<file>
+00001| # BLE 开发规则
+00002| 
+00003| > **触发条件**: 修改 `connect-lib/` 下 BLE 相关代码时，必须阅读本文档
+00004| > **完整设计**: [design/ble-authentication-design.md](../design/ble-authentication-design.md)
+00005| 
+00006| ---
+00007| 
+00008| ## 1. 必须遵守（违反即不合格）
+00009| 
+00010| ### 1.1 写操作必须串行化
+00011| 
+00012| **根因**: Android BLE 协议栈不支持并发 GATT 操作，会导致 `GATT_BUSY (Status 133)`。
+00013| 
+00014| ```java
+00015| // ❌ 禁止：直接调用写方法
+00016| bluetoothGatt.writeCharacteristic(characteristic);
+00017| gattServer.notifyCharacteristicChanged(device, characteristic, false);
+00018| 
+00019| // ✅ 正确：通过 TxQueueManager 串行化
+00020| txQueueManager.enqueue(device, uuid, data);
+00021| ```
+00022| 
+00023| ### 1.2 禁止使用 Thread.sleep 等待
+00024| 
+00025| ```java
+00026| // ❌ 禁止：阻塞等待
+00027| bluetoothGatt.writeCharacteristic(characteristic);
+00028| Thread.sleep(100);  // 危险！
+00029| bluetoothGatt.writeCharacteristic(nextCharacteristic);
+00030| 
+00031| // ✅ 正确：回调驱动
+00032| @Override
+00033| public void onNotificationSent(BluetoothDevice device, int status) {
+00034|     txQueueManager.sendNext();
+00035| }
+00036| ```
+00037| 
+00038| ### 1.3 认证完成前禁止触发 onConnected
+00039| 
+00040| ```java
+00041| // ❌ 禁止：GATT 连接成功就触发
+00042| @Override
+00043| public void onConnectionStateChange(..., int newState) {
+00044|     if (newState == STATE_CONNECTED) {
+00045|         callback.onConnected(device);  // 错误！认证还没完成
+00046|     }
+00047| }
+00048| 
+00049| // ✅ 正确：认证成功后才触发
+00050| private void handleAuthResult(byte result) {
+00051|     if (result == AUTH_SUCCESS) {
+00052|         isAuthenticated = true;
+00053|         callback.onConnected(device);  // 正确时机
+00054|     }
+00055| }
+00056| ```
+00057| 
+00058| ### 1.4 Binder 线程必须切换到主线程
+00059| 
+00060| ```java
+00061| // ❌ 禁止：直接在 Binder 线程执行
+00062| @Override
+00063| public void connectBle(SpaceDevice device) {
+00064|     connector.connect(device);  // 在 Binder 线程执行，危险！
+00065| }
+00066| 
+00067| // ✅ 正确：切到主线程
+00068| @Override
+00069| public void connectBle(SpaceDevice device) {
+00070|     // Thread: Binder -> Main
+00071|     mainHandler.post(() -> {
+00072|         connector.connect(device);
+00073|     });
+00074| }
+00075| ```
+00076| 
+00077| ### 1.5 证书处理规范
+00078| 
+00079| ```java
+00080| // ❌ 禁止：硬编码证书内容
+00081| private static final String CERT = "MIIBkTCB...";
+00082| 
+00083| // ❌ 禁止：日志打印证书/私钥
+00084| SLog.d(TAG, "私钥: " + privateKey.toString());
+00085| 
+00086| // ✅ 正确：从 assets 加载
+00087| InputStream is = context.getAssets().open("spacelink_cert.p12");
+00088| ```
+00089| 
+00090| ---
+00091| 
+00092| ## 2. 架构约束
+00093| 
+00094| ### 2.1 Car 端 vs Device 端
+00095| 
+00096| | 维度     | Car 端             | Device 端             |
+00097| |--------|-------------------|----------------------|
+00098| | 类      | `CarBleConnector` | `DeviceBleConnector` |
+00099| | BLE 角色 | GATT Server       | GATT Client          |
+00100| | 认证角色   | Server (验证方，发起挑战) | Client (应答方，签名响应)    |
+00101| | 发现模式   | 广播 + 被扫描          | 扫描 + 主动连接            |
+00102| 
+00103| ### 2.2 关键类职责
+00104| 
+00105| | 类                             | 职责                | 禁止修改        |
+00106| |-------------------------------|-------------------|-------------|
+00107| | `TxQueueManager`              | BLE 写操作串行化        | 不要绕过它直接写    |
+00108| | `ServerAuthenticationHandler` | Car 端 X.509 认证    | 认证流程不要随意改   |
+00109| | `ClientAuthenticationHandler` | Device 端 X.509 认证 | 认证流程不要随意改   |
+00110| | `PacketManager`               | 分包/重组             | MTU 计算逻辑不要改 |
+00111| 
+00112| ---
+00113| 
+00114| ## 3. 认证流程（只读参考）
+00115| 
+00116| ```
+00117| 1. GATT Connect (Device → Car)
+00118| 2. MTU Negotiation (512)
+00119| 3. Discover Services
+00120| 4. Enable AUTH_CHAR Notification
+00121| 5. CMD_CERT_EXCHANGE (Car → Device, Car 证书)
+00122| 6. CMD_CERT_EXCHANGE (Device → Car, Device 证书)
+00123| 7. CMD_AUTH_CHALLENGE (Car → Device, 32 字节 nonce)
+00124| 8. CMD_AUTH_RESPONSE (Device → Car, 签名 + deviceId)
+00125| 9. CMD_AUTH_RESULT (Car → Device, 0x01=成功, 0x00=失败, 0x02=离线解绑)
+00126| 10. CMD_DEVICE_INFO (双向交换设备信息)
+00127| 11. onConnected 回调
+00128| ```
+00129| 
+00130| **禁止修改认证流程顺序**，除非有完整的设计评审。
+00131| 
+00132| ---
+00133| 
+00134| ## 4. 协议扩展规范
+00135| 
+00136| **优先复用现有命令**，通过扩展 payload 实现新功能：
+00137| 
+00138| ```java
+00139| // ✅ 推荐：扩展现有命令的 payload
+00140| CMD_AUTH_RESULT = 0x0104
+00141|   payload = 0x01  // 认证成功
+00142|   payload = 0x00  // 认证失败
+00143|   payload = 0x02  // 离线解绑（扩展）
+00144| 
+00145| // ❌ 避免：新增命令码
+00146| CMD_OFFLINE_UNBIND = 0x01XX  // 不推荐，增加 AIDL 变更风险
+00147| ```
+00148| 
+00149| ---
+00150| 
+00151| ## 5. 常见错误与解决
+00152| 
+00153| ### 5.1 GATT_BUSY (Status 133)
+00154| 
+00155| **根因**: 并发写操作  
+00156| **解决**: 确保所有写操作通过 `TxQueueManager`
+00157| 
+00158| ### 5.2 连接后立即断开
+00159| 
+00160| **根因**: 认证失败或证书问题  
+00161| **排查**:
+00162| 
+00163| 1. 检查证书有效期
+00164| 2. 检查证书是否被吊销
+00165| 3. 检查 Root CA 是否一致
+00166| 
+00167| ### 5.3 MTU 协商失败
+00168| 
+00169| **根因**: 部分设备不支持大 MTU  
+00170| **解决**: 降级使用默认 MTU，启用分包机制
+00171| 
+00172| ### 5.4 数据丢失
+00173| 
+00174| **根因**: 分包重组问题  
+00175| **排查**: 检查 `PacketManager` 的 buffer 是否正确清理
+00176| 
+00177| ---
+00178| 
+00179| ## 6. 线程模型
+00180| 
+00181| | 线程          | 来源                    | 处理                |
+00182| |-------------|-----------------------|-------------------|
+00183| | Binder 线程池  | AIDL 调用               | 必须切到 Main Handler |
+00184| | BLE 回调线程    | BluetoothGattCallback | 通常在 Binder 线程     |
+00185| | Main Thread | UI + Service 主线程      | 核心逻辑执行            |
+00186| 
+00187| ---
+00188| 
+00189| ## 7. BLE UUID 速查
+00190| 
+00191| ```java
+00192| CUSTOM_SERVICE_UUID = "564F5941-..."  // 主服务
+00193| RX_CHAR_UUID        = "564F5942-..."  // 写入（Device→Car）
+00194| TX_CHAR_UUID        = "564F5943-..."  // 通知（Car→Device）
+00195| AUTH_CHAR_UUID      = "564F5944-..."  // 认证数据交换
+00196| ```
+00197| 
+00198| ---
+00199| 
+00200| ## 8. 错误码速查 (2000-2099)
+00201| 
+00202| | 错误码  | 常量名                      | 说明        |
+00203| |------|--------------------------|-----------|
+00204| | 2001 | ERROR_BLE_NOT_SUPPORTED  | 设备不支持 BLE |
+00205| | 2002 | ERROR_BLE_NOT_ENABLED    | 蓝牙未开启     |
+00206| | 2005 | ERROR_BLE_CONNECT_FAILED | 连接失败      |
+00207| | 2007 | ERROR_BLE_AUTH_FAILED    | 认证失败      |
+00208| | 2008 | ERROR_BLE_GATT_ERROR     | GATT 操作错误 |
+00209| | 2014 | ERROR_BLE_CERT_INVALID   | 证书无效      |
+00210| 
+
+(End of file - total 210 lines)
+</file>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/git-commit.md"
+}
+```
+
+**Output:**
+```
+<file>
+00001| # Git 提交规范
+00002| 
+00003| > **触发条件**: 提交代码时，必须阅读本文档
+00004| 
+00005| ---
+00006| 
+00007| ## 1. 提交信息格式
+00008| 
+00009| ```
+00010| [JiraNo]: H37ZIVI-XXXX [Subject]: 简述 [Type]: feat/fix/refactor/docs/test
+00011| ```
+00012| 
+00013| ### 1.1 Type 说明
+00014| 
+00015| | Type       | 说明        | 示例                     |
+00016| |------------|-----------|------------------------|
+00017| | `feat`     | 新功能       | 新增 WiFi 连接功能           |
+00018| | `fix`      | Bug 修复    | 修复 BLE 连接超时问题          |
+00019| | `refactor` | 重构（不改变功能） | 重构 ChannelManager 代码结构 |
+00020| | `docs`     | 文档更新      | 更新 SDK 接入文档            |
+00021| | `test`     | 测试相关      | 添加 ProtocolCodec 单元测试  |
+00022| | `chore`    | 构建/工具变更   | 升级 AGP 版本              |
+00023| 
+00024| ### 1.2 示例
+00025| 
+00026| ```
+00027| [JiraNo]: H37ZIVI-1234 [Subject]: 修复 BLE 认证超时问题 [Type]: fix
+00028| [JiraNo]: H37ZIVI-1235 [Subject]: 新增 WiFi P2P 连接支持 [Type]: feat
+00029| [JiraNo]: H37ZIVI-1236 [Subject]: 重构 TxQueueManager 代码 [Type]: refactor
+00030| ```
+00031| 
+00032| ---
+00033| 
+00034| ## 2. 提交前检查清单
+00035| 
+00036| 在运行 `git commit` 前，**必须**完成：
+00037| 
+00038| - [ ] 代码编译通过: `./gradlew :thanos:compileDebugJavaWithJavac`
+00039| - [ ] 无未使用的 import
+00040| - [ ] 无注释掉的旧代码
+00041| - [ ] 无硬编码魔法值
+00042| - [ ] 相关测试通过（如有）
+00043| - [ ] 公共方法有完整 Javadoc（SDK 模块）
+00044| 
+00045| ---
+00046| 
+00047| ## 3. 禁止事项
+00048| 
+00049| | # | 禁止行为                                 |
+00050| |---|--------------------------------------|
+00051| | 1 | ❌ 提交包含密钥/证书内容的文件                     |
+00052| | 2 | ❌ 提交 `.idea/`、`build/`、`*.iml` 等临时文件 |
+00053| | 3 | ❌ 一次提交包含不相关的多个变更                     |
+00054| | 4 | ❌ 提交信息使用中文标点（使用英文标点）                 |
+00055| | 5 | ❌ 提交信息超过 72 字符（Subject 部分）           |
+00056| 
+00057| ---
+00058| 
+00059| ## 4. 分支命名
+00060| 
+00061| ```
+00062| feature/H37ZIVI-XXXX-简短描述    # 新功能
+00063| bugfix/H37ZIVI-XXXX-简短描述     # Bug 修复
+00064| refactor/H37ZIVI-XXXX-简短描述   # 重构
+00065| ```
+00066| 
+00067| ### 示例
+00068| 
+00069| ```
+00070| feature/H37ZIVI-1234-wifi-p2p-support
+00071| bugfix/H37ZIVI-1235-ble-auth-timeout
+00072| refactor/H37ZIVI-1236-channel-manager
+00073| ```
+00074| 
+00075| ---
+00076| 
+00077| ## 5. 常用 Git 命令
+00078| 
+00079| ```bash
+00080| # 查看状态
+00081| git status
+00082| 
+00083| # 添加文件
+00084| git add <file>
+00085| git add .
+00086| 
+00087| # 提交
+00088| git commit -m "[JiraNo]: H37ZIVI-XXXX [Subject]: 描述 [Type]: feat"
+00089| 
+00090| # 推送
+00091| git push origin <branch>
+00092| 
+00093| # 拉取最新代码
+00094| git pull origin main
+00095| 
+00096| # 创建分支
+00097| git checkout -b feature/H37ZIVI-XXXX-description
+00098| ```
+00099| 
+00100| ---
+00101| 
+00102| ## 6. 代码审查要点
+00103| 
+00104| 提交 PR 前，确保：
+00105| 
+00106| 1. **编译通过** - CI 不能红
+00107| 2. **测试通过** - 相关测试全绿
+00108| 3. **代码规范** - 符合 `docs/rules/coding-style.md`
+00109| 4. **文档更新** - API 变更需更新文档
+00110| 5. **提交信息** - 符合格式要求
+00111| 
+
+(End of file - total 111 lines)
+</file>
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 6.0s)
+
+再看看其他几个 rules 和 design 文件的结构模式。
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/security.md"
+}
+```
+
+**Output:**
+```
+<file>
+00001| # 安全规范
+00002| 
+00003| > **触发条件**: 涉及证书、密钥、敏感数据处理时，必须阅读本文档
+00004| 
+00005| ---
+00006| 
+00007| ## 1. 必须遵守（违反即不合格）
+00008| 
+00009| ### 1.1 证书文件存放
+00010| 
+00011| ```
+00012| // ✅ 正确：放在 assets 目录
+00013| assets/
+00014| ├── spacelink_root_ca.crt   # Root CA 公钥
+00015| └── spacelink_cert.p12      # 设备证书 + 私钥
+00016| 
+00017| // ❌ 禁止：硬编码证书内容
+00018| private static final String CERT = "MIIBkTCB...";
+00019| ```
+00020| 
+00021| ### 1.2 禁止日志打印敏感信息
+00022| 
+00023| ```java
+00024| // ❌ 禁止
+00025| SLog.d(TAG, "私钥: " + privateKey.toString());
+00026| SLog.d(TAG, "证书: " + certificate.getEncoded());
+00027| SLog.d(TAG, "用户ID: " + userId);
+00028| SLog.d(TAG, "密码: " + password);
+00029| 
+00030| // ✅ 正确
+00031| SLog.d(TAG, "证书加载完成");
+00032| SLog.d(TAG, "认证成功，设备数: " + deviceCount);
+00033| ```
+00034| 
+00035| ### 1.3 加密存储敏感数据
+00036| 
+00037| ```java
+00038| // ❌ 禁止：明文存储
+00039| SharedPreferences.edit().putString("password", password).apply();
+00040| 
+00041| // ✅ 正确：使用 EncryptedSharedPreferences
+00042| EncryptedSharedPreferences.create(
+00043|     context,
+00044|     "secret_prefs",
+00045|     masterKey,
+00046|     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+00047|     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+00048| );
+00049| ```
+00050| 
+00051| ### 1.4 私钥用完立即清理
+00052| 
+00053| ```java
+00054| // ✅ 正确：用完置空
+00055| try {
+00056|     byte[] signature = signWithPrivateKey(data, privateKey);
+00057|     return signature;
+00058| } finally {
+00059|     privateKey = null;  // 用完立即置空
+00060| }
+00061| ```
+00062| 
+00063| ---
+00064| 
+00065| ## 2. 敏感数据分类
+00066| 
+00067| ### 2.1 高敏感（禁止日志）
+00068| 
+00069| | 数据类型 | 说明                           |
+00070| |------|------------------------------|
+00071| | 私钥   | PrivateKey 对象及其 byte[] 表示    |
+00072| | 证书内容 | X509Certificate 的 encoded 数据 |
+00073| | 密码   | WiFi 密码、P12 密码等              |
+00074| | 用户凭证 | userId、token、session 等       |
+00075| 
+00076| ### 2.2 中敏感（脱敏后可日志）
+00077| 
+00078| | 数据类型  | 脱敏方式                       |
+00079| |-------|----------------------------|
+00080| | 设备地址  | 仅显示后 4 位: `**:**:**:AA:BB` |
+00081| | 证书序列号 | 可以打印（用于调试）                 |
+00082| | 设备名称  | 可以打印                       |
+00083| 
+00084| ---
+00085| 
+00086| ## 3. 加密标准
+00087| 
+00088| ### 3.1 对称加密
+00089| 
+00090| - 算法: **AES-256-GCM**
+00091| - 用途: 本地数据存储（DeviceRegistry）
+00092| 
+00093| ### 3.2 非对称加密
+00094| 
+00095| - 算法: **ECDSA with SHA-256**
+00096| - 曲线: **secp256r1 (P-256)**
+00097| - 用途: BLE 认证签名
+00098| 
+00099| ### 3.3 证书体系
+00100| 
+00101| - 格式: **X.509**
+00102| - 签发: Root CA 签发设备证书
+00103| - 验证: 证书链验证 + 黑名单检查
+00104| 
+00105| ---
+00106| 
+00107| ## 4. 网络安全
+00108| 
+00109| ### 4.1 BLE 通道
+00110| 
+00111| - 认证后才能传输业务数据
+00112| - 认证失败必须断开连接
+00113| 
+00114| ### 4.2 WiFi 通道
+00115| 
+00116| - 使用 WPA2/WPA3 加密
+00117| - 热点密码随机生成
+00118| 
+00119| ### 4.3 TCP 通道
+00120| 
+00121| - 目前未加密（内网传输）
+00122| - 后续可考虑 TLS
+00123| 
+00124| ---
+00125| 
+00126| ## 5. 禁止事项
+00127| 
+00128| | # | 禁止行为                    |
+00129| |---|-------------------------|
+00130| | 1 | ❌ 硬编码证书、密钥、密码           |
+00131| | 2 | ❌ 日志打印敏感信息              |
+00132| | 3 | ❌ 明文存储敏感数据              |
+00133| | 4 | ❌ 将私钥传递到其他进程            |
+00134| | 5 | ❌ 忽略证书验证结果              |
+00135| | 6 | ❌ 使用弱加密算法（MD5、SHA1、DES） |
+00136| | 7 | ❌ 在 Git 中提交证书/密钥文件      |
+00137| 
+00138| ---
+00139| 
+00140| ## 6. 证书验证清单
+00141| 
+00142| 验证对端证书时，必须检查：
+00143| 
+00144| - [ ] 证书格式有效
+00145| - [ ] 证书链完整（由 Root CA 签发）
+00146| - [ ] 证书未过期
+00147| - [ ] 证书未被吊销（黑名单检查）
+00148| 
+00149| ```java
+00150| // CertificateValidator.java
+00151| public ValidationResult validate(X509Certificate cert) {
+00152|     // 1. 验证证书链
+00153|     cert.verify(rootCA.getPublicKey());
+00154|     
+00155|     // 2. 检查有效期
+00156|     cert.checkValidity();
+00157|     
+00158|     // 3. 检查黑名单
+00159|     if (revokedSerials.contains(cert.getSerialNumber())) {
+00160|         return ValidationResult.REVOKED;
+00161|     }
+00162|     
+00163|     return ValidationResult.VALID;
+00164| }
+00165| ```
+00166| 
+00167| ---
+00168| 
+00169| ## 7. 安全相关错误码
+00170| 
+00171| | 错误码  | 常量名                    | 说明    |
+00172| |------|------------------------|-------|
+00173| | 2014 | ERROR_BLE_CERT_INVALID | 证书无效  |
+00174| | 2015 | ERROR_BLE_CERT_EXPIRED | 证书过期  |
+00175| | 2016 | ERROR_BLE_CERT_REVOKED | 证书已吊销 |
+00176| | 2007 | ERROR_BLE_AUTH_FAILED  | 认证失败  |
+00177| 
+
+(End of file - total 177 lines)
+</file>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/testing.md"
+}
+```
+
+**Output:**
+```
+<file>
+00001| # 测试规范
+00002| 
+00003| > **触发条件**: 编写或修改测试代码时，必须阅读本文档
+00004| 
+00005| ---
+00006| 
+00007| ## 1. 必须遵守（违反即不合格）
+00008| 
+00009| ### 1.1 测试文件位置
+00010| 
+00011| ```
+00012| src/test/java/           # 单元测试
+00013| src/androidTest/java/    # Android 集成测试
+00014| ```
+00015| 
+00016| ### 1.2 测试类命名
+00017| 
+00018| ```java
+00019| // ✅ 正确
+00020| public class ProtocolCodecTest { ... }
+00021| public class ChannelManagerTest { ... }
+00022| 
+00023| // ❌ 禁止
+00024| public class TestProtocolCodec { ... }  // Test 不要放前面
+00025| public class ProtocolCodecTests { ... } // 不要用复数
+00026| ```
+00027| 
+00028| ### 1.3 测试方法命名
+00029| 
+00030| ```java
+00031| // ✅ 正确：test<场景>_<预期结果>
+00032| @Test
+00033| public void testEncode_withValidData_returnsEncodedBytes() { ... }
+00034| 
+00035| @Test
+00036| public void testDecode_withInvalidMagic_throwsException() { ... }
+00037| 
+00038| // ❌ 禁止
+00039| @Test
+00040| public void test1() { ... }  // 无意义的命名
+00041| ```
+00042| 
+00043| ### 1.4 测试必须可重复执行
+00044| 
+00045| ```java
+00046| // ❌ 禁止：依赖外部状态
+00047| @Test
+00048| public void testConnect() {
+00049|     // 依赖真实蓝牙设备 - 不可重复！
+00050|     connector.connect(realDevice);
+00051| }
+00052| 
+00053| // ✅ 正确：使用 Mock
+00054| @Test
+00055| public void testConnect_withMockDevice_callsGattConnect() {
+00056|     BluetoothDevice mockDevice = mock(BluetoothDevice.class);
+00057|     connector.connect(mockDevice);
+00058|     verify(mockGatt).connect();
+00059| }
+00060| ```
+00061| 
+00062| ---
+00063| 
+00064| ## 2. 测试覆盖要求
+00065| 
+00066| ### 2.1 必须测试
+00067| 
+00068| | 模块       | 必须测试的内容                     |
+00069| |----------|-----------------------------|
+00070| | `common` | 协议编解码 (`ProtocolCodec`)、工具类 |
+00071| | `*-lib`  | 核心业务逻辑、状态机转换                |
+00072| | `*-sdk`  | 公共 API 行为、参数校验              |
+00073| 
+00074| ### 2.2 建议测试
+00075| 
+00076| - 边界条件（空值、空集合、极值）
+00077| - 异常路径
+00078| - 并发场景
+00079| 
+00080| ---
+00081| 
+00082| ## 3. 测试结构（AAA 模式）
+00083| 
+00084| ```java
+00085| @Test
+00086| public void testDecode_withValidPacket_returnsCorrectPayload() {
+00087|     // Arrange - 准备测试数据
+00088|     byte[] packet = createValidPacket();
+00089|     
+00090|     // Act - 执行被测方法
+00091|     Payload result = codec.decode(packet);
+00092|     
+00093|     // Assert - 验证结果
+00094|     assertNotNull(result);
+00095|     assertEquals(expectedCmd, result.getCommand());
+00096| }
+00097| ```
+00098| 
+00099| ---
+00100| 
+00101| ## 4. 常用测试命令
+00102| 
+00103| ```bash
+00104| # 运行全部测试
+00105| ./gradlew test
+00106| 
+00107| # 运行单个模块测试
+00108| ./gradlew :common:test
+00109| 
+00110| # 运行单个测试类
+00111| ./gradlew :common:test --tests "ProtocolCodecTest"
+00112| 
+00113| # 运行单个测试方法
+00114| ./gradlew :common:test --tests "ProtocolCodecTest.testEncodeDecode"
+00115| 
+00116| # 查看测试报告
+00117| open common/build/reports/tests/test/index.html
+00118| ```
+00119| 
+00120| ---
+00121| 
+00122| ## 5. Mock 框架
+00123| 
+00124| 项目使用 **Mockito**：
+00125| 
+00126| ```java
+00127| import static org.mockito.Mockito.*;
+00128| 
+00129| // 创建 Mock
+00130| BluetoothGatt mockGatt = mock(BluetoothGatt.class);
+00131| 
+00132| // 设置返回值
+00133| when(mockGatt.getServices()).thenReturn(serviceList);
+00134| 
+00135| // 验证调用
+00136| verify(mockGatt).disconnect();
+00137| verify(mockGatt, times(2)).writeCharacteristic(any());
+00138| ```
+00139| 
+00140| ---
+00141| 
+00142| ## 6. 禁止事项
+00143| 
+00144| | # | 禁止行为                                                  |
+00145| |---|-------------------------------------------------------|
+00146| | 1 | ❌ 测试中使用 `Thread.sleep()` 等待（使用 Mock 或 CountDownLatch） |
+00147| | 2 | ❌ 测试依赖执行顺序                                            |
+00148| | 3 | ❌ 测试中硬编码真实设备地址                                        |
+00149| | 4 | ❌ 测试中访问网络或文件系统（除非是集成测试）                               |
+00150| | 5 | ❌ 忽略测试失败（`@Ignore` 必须有注释说明原因）                         |
+00151| 
+
+(End of file - total 151 lines)
+</file>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/Work/VOYAH/code/VoyahSpaceLink/docs/rules/sdk-api.md"
+}
+```
+
+**Output:**
+```
+<file>
+00001| # SDK API 注释规范
+00002| 
+00003| > **适用范围**: `connect-sdk`、`channel-sdk`、`cast-sdk` 模块
+00004| 
+00005| ---
+00006| 
+00007| ## 强制要求
+00008| 
+00009| 1. SDK 对外暴露的每个 public 方法、类、接口都**必须**包含完整的 Javadoc 注释
+00010| 2. 必须使用 `@since` 标签记录 API 引入版本
+00011| 3. 废弃的 API 使用 `@deprecated` 标签并说明替代方案
+00012| 4. 每个公共方法必须标注线程安全性和调用模式
+00013| 
+00014| ---
+00015| 
+00016| ## 注释模板
+00017| 
+00018| ### 方法注释
+00019| 
+00020| ```java
+00021| /**
+00022|  * 方法简述（一句话）
+00023|  * <p>
+00024|  * 详细描述（可选，多行，说明使用场景或实现细节）
+00025|  *
+00026|  * <h3>线程安全</h3>
+00027|  * 线程安全
+00028|  *
+00029|  * <h3>调用模式</h3>
+00030|  * 异步（回调: {@link Callback#onXxx()}）
+00031|  *
+00032|  * <h3>前置条件</h3>
+00033|  * SDK 已初始化且 isReady() == true
+00034|  *
+00035|  * <h3>适用角色</h3>
+00036|  * Car 端 / Device 端 / 双端
+00037|  *
+00038|  * <h3>注意事项</h3>
+00039|  * 可选，说明特殊限制或边界条件
+00040|  *
+00041|  * @param paramName 参数描述
+00042|  *                  取值范围: 如有限制则说明
+00043|  * @return 返回值描述
+00044|  * @throws ExceptionType 异常条件描述
+00045|  * @see #relatedMethod()
+00046|  * @since 0.0.1
+00047|  * @deprecated 从 x.x.x 起废弃，请使用 {@link #newMethod()} 代替
+00048|  */
+00049| ```
+00050| 
+00051| ### 类/接口注释
+00052| 
+00053| ```java
+00054| /**
+00055|  * 类简述
+00056|  * <p>
+00057|  * 详细描述，说明类的职责和使用场景。
+00058|  *
+00059|  * <h3>线程安全</h3>
+00060|  * 所有公开方法均为线程安全，可从任意线程调用。
+00061|  * 回调均在主线程执行。
+00062|  *
+00063|  * <h3>使用示例</h3>
+00064|  * <pre>
+00065|  * // 简洁的代码示例
+00066|  * SDK.initialize(context, callback);
+00067|  * </pre>
+00068|  *
+00069|  * @since 0.0.1
+00070|  */
+00071| ```
+00072| 
+00073| ---
+00074| 
+00075| ## 必填字段清单
+00076| 
+00077| | 字段      | 必填 | 说明            |
+00078| |---------|----|---------------|
+00079| | 方法简述    | 是  | 一句话说明功能       |
+00080| | 线程安全    | 是  | 必须标注          |
+00081| | 调用模式    | 是  | 同步/异步         |
+00082| | @param  | 是  | 每个参数必须说明      |
+00083| | @return | 是  | 非 void 方法必须说明 |
+00084| | @since  | 是  | 必须标注引入版本      |
+00085| | 前置条件    | 推荐 | 调用前需要满足的条件    |
+00086| | 适用角色    | 推荐 | Car/Device/双端 |
+00087| 
+00088| ---
+00089| 
+00090| ## 版本号规范
+00091| 
+00092| - 格式: `major.minor.patch`（如 `0.0.1`）
+00093| - 新增 API 时增加 patch 或 minor
+00094| - 破坏性变更时增加 major
+00095| - 废弃 API 需在 `@deprecated` 中说明从哪个版本废弃
+00096| 
+00097| ---
+00098| 
+00099| ## 禁止事项
+00100| 
+00101| - **禁止** 公共方法无注释
+00102| - **禁止** 缺少 `@since` 版本标签
+00103| - **禁止** 缺少线程安全说明
+00104| - **禁止** 异步方法不说明回调接口
+00105| 
+
+(End of file - total 105 lines)
+</file>
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 35.9s)
+
+现在我完全理解了文档体系的结构。让我更新设计方案。
+
+## 更新后的设计方案
+
+核心变化：**脚本不只是生成模板，而是一个 AI 引导流程**。
+
+### 整体工作流
+
+```
+1. 运行 scaffold.sh → 生成目录骨架 + 通用规则文件
+2. 触发 Skill → AI 读代码生成架构文档（模块依赖、关键类、构建命令）
+3. Skill 交互引导 → 根据项目实际特征，生成领域模块规则（类似 BLE/WiFi）
+```
+
+### 产物结构
+
+```
+skill: agents-md-scaffold/
+├── SKILL.md                    # 主 Skill，引导整个流程
+├── scaffold.sh                 # 脚本：生成目录 + 通用文件
+└── templates/
+    ├── AGENTS.md.tmpl          # AGENTS.md 模板（变量占位）
+    ├── coding-style.md         # 通用编码规范（Android Java/Kotlin）
+    ├── git-commit.md           # Git 提交规范模板
+    ├── testing.md              # 测试规范模板
+    ├── security.md             # 安全规范模板
+    ├── sdk-api.md              # SDK API 注释规范模板
+    └── domain-rule.md.tmpl     # 领域模块规则模板（BLE/WiFi 级别）
+```
+
+### 三阶段流程
+
+| 阶段 | 执行者 | 产出 |
+|---|---|---|
+| **Phase 1: 骨架搭建** | scaffold.sh | 目录结构 + 通用 rules 文件 |
+| **Phase 2: 架构分析** | AI 读代码 | AGENTS.md 中的项目概览、构建命令、模块依赖、关键类参考 |
+| **Phase 3: 领域规则** | AI 交互引导 | 领域模块的 rules + design 文档（类似 ble-development.md） |
+
+每个 rules 文件保持当前项目的统一结构：
+- `> 触发条件` 头部
+- `必须遵守` 节
+- `架构约束` 节
+- `常见错误` 节
+- `禁止事项` 表格
+- `错误码速查` 表格
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "question": "这个三阶段方案是否符合你的预期？可以开始实现了吗？",
+      "header": "方案确认",
+      "options": [
+        {
+          "label": "方案 OK，开始实现",
+          "description": "按三阶段方案开始写 Skill + 脚本"
+        },
+        {
+          "label": "还需要调整",
+          "description": "有细节需要讨论"
+        }
+      ],
+      "multiple": false
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "这个三阶段方案是否符合你的预期？可以开始实现了吗？"="还需要调整". You can now continue with the user's answers in mind.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 3.2s)
+
+请说说你觉得哪些地方需要调整？
+
+---
+
+## User
+
+模板保持通用一点，像sdk这种，可能有些项目就不是sdk的项目，就不需要
+需要AI根据项目来输出具体的约束，目的是让不同的AI，不同的人
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 1.8s)
+
+---
+
+## User
+
+模板保持通用一点，像sdk这种，可能有些项目就不是sdk的项目，就不需要
+需要AI根据项目来输出具体的约束，目的是让不同的AI，不同的开发者快速上手，按照要求输出高质量的代码，降低开发维护成本
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 126.9s)
+
+
+
+明白了，核心调整：
+
+1. **模板只保留真正通用的**（编码风格、Git、测试、安全），sdk-api 这种按需生成
+2. **所有项目特定内容都由 AI 读代码后生成**，不预设模板
+3. **目标是：任何项目、任何 AI、任何开发者都能快速产出一致高质量代码**
+
+### 修正后的设计
+
+**模板层（scaffold.sh 生成，真正通用）：**
+- `docs/rules/coding-style.md` - Android Java/Kotlin 编码规范
+- `docs/rules/git-commit.md` - Git 提交规范（前缀格式可配置）
+- `docs/rules/testing.md` - 测试规范
+- `docs/rules/security.md` - 安全规范
+- `docs/design/.gitkeep` - 空目录
+
+**AI 分析生成层（Skill 引导，项目特定）：**
+- `AGENTS.md` - 项目概览、构建命令、模块依赖、架构约束、关键类、AI 禁止事项、规则索引 → **全部由 AI 读代码分析生成**
+- `docs/rules/<domain>-development.md` - 领域模块规则 → **AI 交互引导生成**（类似 BLE/WiFi，但根据实际项目决定有哪些）
+- `docs/design/<domain>-design.md` - 领域设计文档 → **AI 交互引导生成**
+- `docs/rules/sdk-api.md` 等专项规则 → **AI 判断是否需要，按需生成**
+
+**Skill 的核心价值：**
+- 告诉 AI 怎么分析项目（看什么文件、提取什么信息）
+- 告诉 AI 输出格式必须和 VoyahSpaceLink 的文档结构一致
+- 告诉 AI 交互引导的流程（问什么问题、怎么决定生成哪些文档）
+
+这样任何项目进来，AI 都按同一套流程输出一致结构的文档，开发者看到的格式完全统一。
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "question": "这个方案可以开始实现了吗？",
+      "header": "确认开始",
+      "options": [
+        {
+          "label": "开始实现",
+          "description": "按这个方案开始写 Skill + 脚本"
+        },
+        {
+          "label": "还需调整",
+          "description": "还有想法"
+        }
+      ],
+      "multiple": false
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "这个方案可以开始实现了吗？"="AI分析代码，必须要深度分析，分析之后才引导用户输出对应的框架，要有足够的了解才开始做框架，如果框架不对，后续都在一个错的基础上，就更不对了". You can now continue with the user's answers in mind.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 39.7s)
+
+非常重要的一点。你说得对——**分析质量决定了整个框架的质量**，分析不充分，后面全是错的。
+
+让我把这个关键约束融入 Skill 设计：
+
+### 深度分析优先原则
+
+Skill 的 Phase 2 不能是简单的"扫一眼"，必须是**结构化深度分析**：
+
+```
+Phase 2: 深度分析（必须完成才能进入 Phase 3）
+├── 2.1 构建体系分析
+│   ├── 构建工具识别（Gradle/Maven/Bazel）
+│   ├── 模块结构扫描（settings.gradle / build.gradle）
+│   ├── 依赖关系图（模块间 implementation/api 依赖）
+│   └── 构建命令验证（实际运行，确认能跑通）
+│
+├── 2.2 架构分层分析
+│   ├── 各模块职责推断（读 package 结构 + 核心类）
+│   ├── 依赖方向验证（确认单向依赖还是有循环）
+│   ├── API 边界识别（哪些是对外暴露的、哪些是内部的）
+│   └── 分层模型输出（类似 App → SDK → Service → Lib → Common）
+│
+├── 2.3 核心代码分析
+│   ├── 入口类识别（Application、Service、Activity）
+│   ├── 核心业务类识别（Manager、Connector、Handler）
+│   ├── 工具类/常量类识别
+│   └── 关键类职责描述
+│
+├── 2.4 领域特征识别
+│   ├── 技术领域判断（网络通信？UI？数据存储？硬件交互？）
+│   ├── 领域模块边界（哪些模块属于哪个领域）
+│   └── 每个领域的关键约束点（线程模型、协议、状态机）
+│
+└── 2.5 分析报告确认
+    ├── 输出分析摘要给用户确认
+    ├── 用户纠正/补充
+    └── 确认后才进入 Phase 3
+```
+
+**关键约束**：每一步分析结果都要**输出给用户确认**，不对就纠正，确认了才往下走。不能 AI 自己分析完就直接生成。
+
+**Tool: question**
+
+**Input:**
+```json
+{
+  "questions": [
+    {
+      "question": "这个深度分析流程是否符合你的预期？现在可以开始实现了吗？",
+      "header": "最终确认",
+      "options": [
+        {
+          "label": "开始实现",
+          "description": "按这个方案开始写 Skill + 脚本"
+        },
+        {
+          "label": "还需调整",
+          "description": "还有想法"
+        }
+      ],
+      "multiple": false
+    }
+  ]
+}
+```
+
+**Output:**
+```
+User has answered your questions: "这个深度分析流程是否符合你的预期？现在可以开始实现了吗？"="开始实现". You can now continue with the user's answers in mind.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 7.1s)
+
+好，开始实现。
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "创建 Skill 目录结构",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "2",
+      "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "3",
+      "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "4",
+      "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "5",
+      "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "6",
+      "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "7",
+      "content": "验证：检查所有文件完整性和一致性",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "id": "1",
+    "content": "创建 Skill 目录结构",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "5",
+    "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "6",
+    "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "content": "验证：检查所有文件完整性和一致性",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 7.3s)
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "创建 Skill 目录结构",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "id": "2",
+      "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "3",
+      "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "4",
+      "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "5",
+      "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "6",
+      "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "7",
+      "content": "验证：检查所有文件完整性和一致性",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "id": "1",
+    "content": "创建 Skill 目录结构",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "5",
+    "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "6",
+    "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "content": "验证：检查所有文件完整性和一致性",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 4.2s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "mkdir -p /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates",
+  "description": "Create skill directory structure"
+}
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 7.5s)
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "创建 Skill 目录结构",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "2",
+      "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "id": "3",
+      "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "4",
+      "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "5",
+      "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "6",
+      "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "7",
+      "content": "验证：检查所有文件完整性和一致性",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "id": "1",
+    "content": "创建 Skill 目录结构",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "5",
+    "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "6",
+    "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "content": "验证：检查所有文件完整性和一致性",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 122.9s)
+
+Now let me write the core SKILL.md file:
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/.config/opencode/skills/agents-md-scaffold/SKILL.md",
+  "content": "---\nname: agents-md-scaffold\ndescription: Use when setting up documentation-driven development framework for a new or existing Android project. Generates AGENTS.md, coding rules, and design docs through deep code analysis and interactive guidance.\n---\n\n# AGENTS.md Scaffold - 文档驱动开发框架搭建\n\n## Overview\n\n为 Android (Java/Kotlin) 项目搭建文档驱动开发框架。通过**深度代码分析 + 交互式引导**，生成与 VoyahSpaceLink 一致结构的 AGENTS.md + docs/rules/ + docs/design/ 体系。\n\n**核心原则**：分析质量决定框架质量。分析不充分，后面全是错的。\n\n## When to Use\n\n- 新项目需要搭建 AI 辅助开发规范\n- 历史项目需要引入文档驱动开发\n- 用户提到\"搭建 AGENTS.md\"、\"文档驱动开发\"、\"AI 开发规范\"\n\n## 产出物\n\n```\n项目根/\n├── AGENTS.md                          # 主入口（AI 分析生成）\n├── docs/\n│   ├── rules/\n│   │   ├── coding-style.md            # 编码规范（通用模板 + AI 定制）\n│   │   ├── git-commit.md              # Git 提交规范（通用模板 + 可配置前缀）\n│   │   ├── testing.md                 # 测试规范（通用模板）\n│   │   ├── security.md                # 安全规范（通用模板）\n│   │   └── <domain>-development.md    # 领域模块规则（AI 交互引导生成）\n│   └── design/\n│       └── <domain>-design.md         # 领域设计文档（AI 交互引导生成）\n```\n\n## 三阶段流程\n\n```dot\ndigraph scaffold_flow {\n    rankdir=TB;\n    node [shape=box];\n\n    phase1 [label=\"Phase 1: 骨架搭建\\n运行 scaffold.sh\"];\n    phase2 [label=\"Phase 2: 深度分析\\nAI 读代码分析项目\"];\n    confirm2 [label=\"用户确认分析结果?\" shape=diamond];\n    phase3 [label=\"Phase 3: 领域规则\\nAI 交互引导生成\"];\n    confirm3 [label=\"用户确认规则?\" shape=diamond];\n    done [label=\"完成\" shape=doublecircle];\n\n    phase1 -> phase2;\n    phase2 -> confirm2;\n    confirm2 -> phase2 [label=\"不对，重新分析\"];\n    confirm2 -> phase3 [label=\"确认\"];\n    phase3 -> confirm3;\n    confirm3 -> phase3 [label=\"补充/修改\"];\n    confirm3 -> done [label=\"确认\"];\n}\n```\n\n---\n\n## Phase 1: 骨架搭建\n\n运行 `scaffold.sh` 脚本，生成目录结构和通用规则文件。\n\n**脚本位置**: 本 Skill 目录下的 `scaffold.sh`\n\n```bash\n# 在目标项目根目录运行\nbash /path/to/skills/agents-md-scaffold/scaffold.sh\n```\n\n脚本会：\n1. 创建 `docs/rules/` 和 `docs/design/` 目录\n2. 复制通用规则模板（coding-style、git-commit、testing、security）\n3. 创建 AGENTS.md 骨架文件\n\n**通用规则文件不需要大改**，它们是 Android Java/Kotlin 项目的通用底线规范。但要根据 Phase 2 分析结果做微调（如日志工具类名、构建命令等）。\n\n---\n\n## Phase 2: 深度分析（核心阶段）\n\n**铁律：分析结果必须输出给用户确认，确认后才能进入 Phase 3。**\n\n### 2.1 构建体系分析\n\n**必须执行的操作：**\n\n1. 读 `settings.gradle` / `settings.gradle.kts` → 获取所有模块列表\n2. 读根目录 `build.gradle` / `build.gradle.kts` → AGP 版本、Kotlin 版本、Java 版本\n3. 读每个模块的 `build.gradle` → 依赖关系（implementation/api project）\n4. 识别构建工具（Gradle/Maven/Bazel）和构建变体（debug/release）\n5. **实际运行构建命令**，确认能跑通（如 `./gradlew assembleDebug`）\n\n**输出：**\n- 构建工具及版本\n- 模块列表\n- 模块间依赖关系图（文本表示）\n- 可用的构建/测试命令\n\n### 2.2 架构分层分析\n\n**必须执行的操作：**\n\n1. 根据模块间依赖关系，推断分层模型\n2. 识别依赖方向：是否严格单向？有无循环依赖？\n3. 识别每个模块的职责（读 package 结构、核心类名）\n4. 识别 API 边界：哪些模块对外暴露 API？（如 AIDL、public interface）\n5. 识别受保护区域：哪些文件/模块不应随意修改？\n\n**输出：**\n- 分层依赖图（类似 `App → SDK → Service → Lib → Common`）\n- 每个模块的一句话职责描述\n- 文件访问权限建议（禁区/受控/开放/配置）\n- 反向依赖禁止规则\n\n### 2.3 核心代码分析\n\n**必须执行的操作：**\n\n1. 识别入口类（Application、Service、Activity、ContentProvider）\n2. 识别核心业务类（*Manager、*Connector、*Handler、*Controller）\n3. 识别工具类和常量类\n4. 读核心类的关键方法签名和注释，理解职责\n5. 识别项目特有的基础设施（日志工具类、线程调度器等）\n\n**输出：**\n- 关键类参考表（模块 | 类 | 职责）\n- 项目特有约束（如\"必须使用 SLog 而非 android.util.Log\"）\n\n### 2.4 领域特征识别\n\n**必须执行的操作：**\n\n1. 根据模块名、包名、类名判断技术领域\n2. 识别每个领域的关键约束点：\n   - 线程模型（哪些操作必须在哪个线程？）\n   - 协议/通信（有无自定义协议？有无状态机？）\n   - 硬件交互（BLE、WiFi、Camera、Sensor？）\n   - 数据存储（DB、SP、文件？）\n3. 识别项目中可能存在的领域模块列表\n\n**输出：**\n- 领域模块列表（如：BLE 连接、WiFi 连接、投屏、消息通道...）\n- 每个领域的关键约束点摘要\n\n### 2.5 分析报告确认\n\n**将以上 4 步的分析结果整合为一份摘要，输出给用户确认。**\n\n摘要格式：\n\n```markdown\n## 项目分析报告\n\n### 基本信息\n- 项目名: xxx\n- 平台: Android\n- 语言: Java / Kotlin / 混合\n- 构建工具: Gradle x.x + AGP x.x\n- Java/Kotlin 版本: xx\n\n### 模块结构\n| 模块名 | 职责 | 层级 |\n|--------|------|------|\n| ...    | ...  | ...  |\n\n### 分层依赖\n```\nApp → SDK → Service → Lib → Common\n```\n\n### 关键类\n| 模块 | 类 | 职责 |\n|------|----|----|\n| ...  | .. | .. |\n\n### 识别到的领域模块\n1. xxx - 关键约束: ...\n2. yyy - 关键约束: ...\n\n### 项目特有约束\n- 日志工具: SLog / Logger / ...\n- 线程模型: ...\n- 其他: ...\n```\n\n**用户确认后才进入 Phase 3。用户纠正的内容必须更新到分析结果中。**\n\n---\n\n## Phase 3: 生成文档\n\n### 3.1 生成 AGENTS.md\n\n基于 Phase 2 确认的分析结果，填充 `templates/AGENTS.md.tmpl` 模板。\n\n**AGENTS.md 必须包含以下章节（与 VoyahSpaceLink 一致）：**\n\n1. **项目概览** - 项目名、平台、语言、版本、核心能力\n2. **构建与测试** - 实际可用的构建/测试命令\n3. **架构约束** - 分层依赖图、文件访问权限、特殊模块约束\n4. **核心编码规范（Top N）** - 从 coding-style.md 中提取最关键的条目，加上项目特有约束\n5. **AI 禁止事项** - 流程禁止、文件禁止、代码禁止（通用 + 项目特有）\n6. **代码输出检查清单** - 提交前必须验证的条目\n7. **规则索引（按需加载）** - 修改场景 → 必读规则 → 必读设计文档\n8. **关键类参考** - 按职责分组的类表\n9. **常量/协议速查**（如果有的话）\n10. **Git 提交格式**\n\n### 3.2 定制通用规则文件\n\n根据分析结果微调 Phase 1 生成的通用规则：\n\n- `coding-style.md`: 替换日志工具类名、补充项目特有的编码约束\n- `git-commit.md`: 配置 Jira 前缀格式、分支命名、构建验证命令\n- `testing.md`: 补充项目实际使用的测试框架、测试命令\n- `security.md`: 根据项目是否涉及加密/证书/敏感数据决定内容深度\n\n### 3.3 交互引导生成领域规则\n\n**对 Phase 2.4 识别的每个领域模块，逐一引导用户确认是否需要生成规则文档。**\n\n引导流程（每个领域）：\n\n1. **确认领域边界**: \"我识别到 xxx 领域，涉及模块 A、B。是否正确？需要为它生成开发规则吗？\"\n2. **分析关键约束**: AI 读该领域的核心代码，提取约束点\n3. **输出规则草稿**: 按统一格式生成 `docs/rules/<domain>-development.md`\n4. **用户确认/修改**: 用户确认规则内容\n5. **询问设计文档**: \"是否需要为 xxx 领域生成设计文档？\"\n\n**领域规则文件统一格式（与 VoyahSpaceLink 一致）：**\n\n```markdown\n# <领域名> 开发规则\n\n> **触发条件**: 修改 `<模块路径>` 下相关代码时，必须阅读本文档\n> **完整设计**: [design/<domain>-design.md](../design/<domain>-design.md)\n\n---\n\n## 1. 必须遵守（违反即不合格）\n### 1.1 规则标题\n**根因**: 为什么需要这条规则\n```java\n// ❌ 禁止：错误示例\n// ✅ 正确：正确示例\n```\n\n## 2. 架构约束\n### 2.1 关键类职责\n| 类 | 职责 | 禁止修改 |\n|----|------|---------|\n\n## 3. 核心流程（只读参考）\n## 4. 线程模型\n## 5. 常见错误与解决\n## 6. 禁止事项\n## 7. 错误码速查（如果有）\n```\n\n**领域设计文档统一格式：**\n\n```markdown\n# <领域名> 设计文档\n\n## 1. 概述\n## 2. 核心概念\n## 3. 架构设计\n## 4. 核心流程\n## 5. 接口定义\n## 6. 错误处理\n## 7. 线程模型\n## 8. 扩展点\n```\n\n### 3.4 按需生成专项规则\n\nAI 根据项目特征判断是否需要额外的专项规则：\n\n| 项目特征 | 生成的规则文件 |\n|---------|------------|\n| 有 SDK 对外暴露 API | `docs/rules/sdk-api.md` |\n| 有 AIDL / IPC | `docs/rules/ipc-development.md` |\n| 有数据库操作 | `docs/rules/database-development.md` |\n| 有网络请求 | `docs/rules/network-development.md` |\n| 有 UI 组件 | `docs/rules/ui-development.md` |\n\n**AI 必须先问用户是否需要，不能自动生成。**\n\n---\n\n## 质量检查清单\n\n完成所有文档后，AI 必须自查：\n\n- [ ] AGENTS.md 的模块依赖图与实际 build.gradle 依赖一致\n- [ ] 构建命令实际可执行\n- [ ] 关键类参考中的类在代码中确实存在\n- [ ] 规则索引表中的文件路径都存在\n- [ ] 所有领域规则文件的触发条件中的路径正确\n- [ ] 无内容相互矛盾的规则\n- [ ] 每个文档都通过了用户确认\n\n---\n\n## 常见错误\n\n| 错误 | 后果 | 防止方法 |\n|------|------|---------|\n| 分析不充分就开始生成 | 框架与实际代码不符 | Phase 2 必须完成全部 4 步 |\n| 不让用户确认分析结果 | 错误传播到所有文档 | 每个阶段都有确认点 |\n| 照搬 VoyahSpaceLink 的内容 | 规则与项目无关 | 所有内容必须基于代码分析 |\n| 遗漏项目特有约束 | AI 后续违反项目规范 | 深入读核心类，找基础设施约束 |\n| 领域规则写得太泛 | 没有实际指导价值 | 必须有具体代码示例 |\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 11.7s)
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "创建 Skill 目录结构",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "2",
+      "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "3",
+      "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "id": "4",
+      "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "5",
+      "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "6",
+      "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "7",
+      "content": "验证：检查所有文件完整性和一致性",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "id": "1",
+    "content": "创建 Skill 目录结构",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "5",
+    "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "6",
+    "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "content": "验证：检查所有文件完整性和一致性",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 33.5s)
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/.config/opencode/skills/agents-md-scaffold/scaffold.sh",
+  "content": "#!/usr/bin/env bash\n# ============================================================================\n# AGENTS.md Scaffold - 文档驱动开发框架搭建脚本\n#\n# 用法: bash scaffold.sh [项目根目录]\n#       默认在当前目录执行\n#\n# 功能:\n#   1. 创建 docs/rules/ 和 docs/design/ 目录结构\n#   2. 复制通用规则模板文件\n#   3. 创建 AGENTS.md 骨架\n#\n# 注意: 此脚本只生成通用框架，项目特定内容需要 AI 分析代码后填充\n# ============================================================================\n\nset -euo pipefail\n\n# 颜色定义\nRED='\\033[0;31m'\nGREEN='\\033[0;32m'\nYELLOW='\\033[1;33m'\nBLUE='\\033[0;34m'\nNC='\\033[0m' # No Color\n\n# 脚本所在目录（用于定位模板文件）\nSCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"\nTEMPLATES_DIR=\"${SCRIPT_DIR}/templates\"\n\n# 目标项目目录\nPROJECT_DIR=\"${1:-.}\"\nPROJECT_DIR=\"$(cd \"$PROJECT_DIR\" && pwd)\"\n\n# ============================================================================\n# 工具函数\n# ============================================================================\n\ninfo() { echo -e \"${BLUE}[INFO]${NC} $*\"; }\nsuccess() { echo -e \"${GREEN}[OK]${NC} $*\"; }\nwarn() { echo -e \"${YELLOW}[WARN]${NC} $*\"; }\nerror() { echo -e \"${RED}[ERROR]${NC} $*\"; exit 1; }\n\nconfirm() {\n    local prompt=\"$1\"\n    local default=\"${2:-y}\"\n    local reply\n    if [[ \"$default\" == \"y\" ]]; then\n        read -r -p \"$(echo -e \"${YELLOW}${prompt} [Y/n]: ${NC}\")\" reply\n        reply=\"${reply:-y}\"\n    else\n        read -r -p \"$(echo -e \"${YELLOW}${prompt} [y/N]: ${NC}\")\" reply\n        reply=\"${reply:-n}\"\n    fi\n    [[ \"$reply\" =~ ^[Yy] ]]\n}\n\n# ============================================================================\n# 检查前置条件\n# ============================================================================\n\ncheck_prerequisites() {\n    info \"检查前置条件...\"\n\n    # 检查是否是 Android 项目\n    if [[ ! -f \"${PROJECT_DIR}/settings.gradle\" && ! -f \"${PROJECT_DIR}/settings.gradle.kts\" ]]; then\n        warn \"未找到 settings.gradle，可能不是标准 Gradle 项目\"\n        if ! confirm \"是否继续？\" \"n\"; then\n            exit 0\n        fi\n    fi\n\n    # 检查是否已存在 AGENTS.md\n    if [[ -f \"${PROJECT_DIR}/AGENTS.md\" ]]; then\n        warn \"AGENTS.md 已存在\"\n        if ! confirm \"是否覆盖？\" \"n\"; then\n            info \"保留现有 AGENTS.md，仅创建缺失的目录和文件\"\n            SKIP_AGENTS_MD=true\n        else\n            SKIP_AGENTS_MD=false\n        fi\n    else\n        SKIP_AGENTS_MD=false\n    fi\n\n    # 检查 docs 目录是否已存在\n    if [[ -d \"${PROJECT_DIR}/docs/rules\" ]]; then\n        warn \"docs/rules/ 目录已存在\"\n        if ! confirm \"是否覆盖已有文件？（不会删除额外文件）\" \"n\"; then\n            SKIP_EXISTING_RULES=true\n        else\n            SKIP_EXISTING_RULES=false\n        fi\n    else\n        SKIP_EXISTING_RULES=false\n    fi\n\n    success \"前置条件检查完成\"\n}\n\n# ============================================================================\n# 创建目录结构\n# ============================================================================\n\ncreate_directories() {\n    info \"创建目录结构...\"\n\n    mkdir -p \"${PROJECT_DIR}/docs/rules\"\n    mkdir -p \"${PROJECT_DIR}/docs/design\"\n\n    # 确保 design 目录不为空（git 能追踪）\n    if [[ ! -f \"${PROJECT_DIR}/docs/design/.gitkeep\" ]]; then\n        touch \"${PROJECT_DIR}/docs/design/.gitkeep\"\n    fi\n\n    success \"目录结构创建完成\"\n}\n\n# ============================================================================\n# 复制通用规则模板\n# ============================================================================\n\ncopy_template() {\n    local template_name=\"$1\"\n    local target_path=\"$2\"\n\n    if [[ \"${SKIP_EXISTING_RULES:-false}\" == \"true\" && -f \"$target_path\" ]]; then\n        info \"  跳过已存在: $(basename \"$target_path\")\"\n        return\n    fi\n\n    if [[ -f \"${TEMPLATES_DIR}/${template_name}\" ]]; then\n        cp \"${TEMPLATES_DIR}/${template_name}\" \"$target_path\"\n        success \"  已生成: $(basename \"$target_path\")\"\n    else\n        error \"模板文件不存在: ${TEMPLATES_DIR}/${template_name}\"\n    fi\n}\n\ncopy_rules_templates() {\n    info \"复制通用规则模板...\"\n\n    copy_template \"coding-style.md\" \"${PROJECT_DIR}/docs/rules/coding-style.md\"\n    copy_template \"git-commit.md\" \"${PROJECT_DIR}/docs/rules/git-commit.md\"\n    copy_template \"testing.md\" \"${PROJECT_DIR}/docs/rules/testing.md\"\n    copy_template \"security.md\" \"${PROJECT_DIR}/docs/rules/security.md\"\n\n    success \"通用规则模板复制完成\"\n}\n\n# ============================================================================\n# 创建 AGENTS.md 骨架\n# ============================================================================\n\ncreate_agents_md() {\n    if [[ \"${SKIP_AGENTS_MD:-false}\" == \"true\" ]]; then\n        info \"跳过 AGENTS.md 生成\"\n        return\n    fi\n\n    info \"创建 AGENTS.md 骨架...\"\n\n    if [[ -f \"${TEMPLATES_DIR}/AGENTS.md.tmpl\" ]]; then\n        cp \"${TEMPLATES_DIR}/AGENTS.md.tmpl\" \"${PROJECT_DIR}/AGENTS.md\"\n        success \"AGENTS.md 骨架创建完成\"\n    else\n        error \"AGENTS.md 模板不存在: ${TEMPLATES_DIR}/AGENTS.md.tmpl\"\n    fi\n}\n\n# ============================================================================\n# 输出后续步骤\n# ============================================================================\n\nprint_next_steps() {\n    echo \"\"\n    echo -e \"${GREEN}========================================${NC}\"\n    echo -e \"${GREEN} 框架搭建完成！${NC}\"\n    echo -e \"${GREEN}========================================${NC}\"\n    echo \"\"\n    echo \"已生成文件:\"\n    echo \"  ${PROJECT_DIR}/AGENTS.md                  (骨架，需 AI 填充)\"\n    echo \"  ${PROJECT_DIR}/docs/rules/coding-style.md (通用编码规范)\"\n    echo \"  ${PROJECT_DIR}/docs/rules/git-commit.md   (Git 提交规范)\"\n    echo \"  ${PROJECT_DIR}/docs/rules/testing.md      (测试规范)\"\n    echo \"  ${PROJECT_DIR}/docs/rules/security.md     (安全规范)\"\n    echo \"  ${PROJECT_DIR}/docs/design/.gitkeep       (设计文档目录)\"\n    echo \"\"\n    echo -e \"${YELLOW}下一步:${NC}\"\n    echo \"  1. 在项目目录中启动 AI 助手\"\n    echo \"  2. 告诉 AI: '请使用 agents-md-scaffold skill 分析项目并完善 AGENTS.md'\"\n    echo \"  3. AI 将深度分析代码，交互式引导你完成所有文档\"\n    echo \"\"\n    echo -e \"${BLUE}提示:${NC}\"\n    echo \"  - AGENTS.md 中的 {{占位符}} 需要 AI 分析代码后替换\"\n    echo \"  - 通用规则文件中的 {{PROJECT_LOG_CLASS}} 等需要根据项目实际替换\"\n    echo \"  - 领域规则文件将由 AI 根据项目特征交互生成\"\n    echo \"\"\n}\n\n# ============================================================================\n# 主流程\n# ============================================================================\n\nmain() {\n    echo \"\"\n    echo -e \"${BLUE}================================================${NC}\"\n    echo -e \"${BLUE} AGENTS.md Scaffold - 文档驱动开发框架搭建${NC}\"\n    echo -e \"${BLUE}================================================${NC}\"\n    echo \"\"\n    info \"目标项目: ${PROJECT_DIR}\"\n    echo \"\"\n\n    check_prerequisites\n    create_directories\n    copy_rules_templates\n    create_agents_md\n    print_next_steps\n}\n\nmain \"$@\"\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 3.7s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "chmod +x /Users/liyou/.config/opencode/skills/agents-md-scaffold/scaffold.sh",
+  "description": "Make scaffold.sh executable"
+}
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 7.3s)
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "创建 Skill 目录结构",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "2",
+      "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "3",
+      "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "4",
+      "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "id": "5",
+      "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "6",
+      "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "7",
+      "content": "验证：检查所有文件完整性和一致性",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "id": "1",
+    "content": "创建 Skill 目录结构",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "id": "5",
+    "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+    "status": "pending",
+    "priority": "high"
+  },
+  {
+    "id": "6",
+    "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "content": "验证：检查所有文件完整性和一致性",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 91.2s)
+
+Now let me write all 4 template files in parallel:
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/coding-style.md",
+  "content": "# 编码规范\n\n---\n\n## 基本原则\n\n- **KISS**: Keep It Simple, Stupid - 简单直接\n- **YAGNI**: You Aren't Gonna Need It - 不要提前设计\n- **SRP**: 单一职责，一个类只做一件事\n- **DRY**: Don't Repeat Yourself - 但避免过度抽象\n\n---\n\n## Java 代码风格\n\n- 遵循 Google Java Style Guide\n- 2 空格缩进，100 字符行限\n- K&R 大括号风格\n- Modifier 顺序:\n  `public protected private abstract default static final transient volatile synchronized native strictfp`\n\n### 导入规范\n\n- **禁止** `import *`\n- **禁止**在代码中直接使用全限定类名，必须使用 `import` 语句\n\n```java\n// ❌ 错误\nandroid.content.Context context;\njava.util.List<String> list = new java.util.ArrayList<>();\n\n// ✅ 正确\nimport android.content.Context;\nimport java.util.ArrayList;\nimport java.util.List;\n\nContext context;\nList<String> list = new ArrayList<>();\n```\n\n**例外**: 仅当存在类名冲突且无法通过别名解决时（极少情况）\n\n---\n\n## Kotlin 代码风格（如适用）\n\n- 遵循 Kotlin Coding Conventions\n- 优先使用 `val` 而非 `var`\n- 使用 data class 表示纯数据\n- 使用 sealed class 表示有限状态集\n- 空安全：尽量避免 `!!`，使用 `?.`、`?:` 或 `let`\n\n```kotlin\n// ❌ 错误\nval name = device.name!!\n\n// ✅ 正确\nval name = device.name ?: return\n// 或\ndevice.name?.let { name ->\n    // 使用 name\n}\n```\n\n---\n\n## 日志规范\n\n- **必须**使用项目统一的日志工具类: `{{PROJECT_LOG_CLASS}}`\n- **禁止**使用 `android.util.Log`\n- **禁止**在循环或高频调用中打印日志\n\n```java\n// ❌ 错误\nLog.d(TAG, \"message\");                     // 禁止使用 android.util.Log\nfor (byte b : data) {\n    {{PROJECT_LOG_CLASS}}.d(TAG, \"byte: \" + b);  // 循环内打日志\n}\n\n// ✅ 正确\n{{PROJECT_LOG_CLASS}}.d(TAG, \"data length: \" + data.length);\n```\n\n> **AI 定制点**: 将 `{{PROJECT_LOG_CLASS}}` 替换为项目实际使用的日志类名\n\n---\n\n## 注释规范\n\n- 公共方法必须有注释\n- 注释说明\"为什么\"而非\"做了什么\"\n- **禁止**冗余的 AI 思维链注释\n\n```java\n// ❌ 不要这样写\n// I think this might be null. Should we check it?\n// Let's add a check here.\n\n// ✅ 应该这样写\n// 空值检查 (API 契约要求)\n```\n\n---\n\n## 质量底线\n\n- 关键逻辑必须有日志\n- 耗时操作必须异步\n- 对外接口必须有参数校验\n- 状态变更必须考虑线程安全\n\n---\n\n## 常见错误清单（必须避免）\n\n### 1. 过度封装 / 过度设计\n\n```java\n// ❌ 禁止：创建不必要的抽象层\ninterface IFooHandler { void handle(); }\nabstract class BaseFooHandler implements IFooHandler { ... }\nclass FooHandlerImpl extends BaseFooHandler { ... }\nclass FooHandlerFactory { ... }\n\n// ✅ 正确：简单直接\nclass FooHandler { void handle() { ... } }\n```\n\n### 2. 遗留废弃代码\n\n- ❌ 禁止留下被注释掉的旧代码\n- ❌ 禁止留下未使用的变量/方法/import\n- ✅ 修改时必须清理相关废弃代码\n\n### 3. 硬编码魔法值\n\n```java\n// ❌ 禁止\nif (status == 133) { ... }\n\n// ✅ 必须使用常量\nprivate static final int GATT_ERROR = 133;\nif (status == GATT_ERROR) { ... }\n```\n\n### 4. 异常处理不当\n\n```java\n// ❌ 禁止：吞掉异常\ntry {\n    doSomething();\n} catch (Exception e) {\n    e.printStackTrace();\n}\n\n// ✅ 正确：处理或重新抛出\ntry {\n    doSomething();\n} catch (IOException e) {\n    {{PROJECT_LOG_CLASS}}.e(TAG, \"操作失败\", e);\n    throw new RuntimeException(\"无法完成操作\", e);\n}\n```\n\n### 5. 资源泄漏\n\n- ❌ 禁止忘记 close() 流、Cursor、Connection\n- ❌ 禁止忘记在 onDestroy 中释放资源\n- ✅ 使用 try-with-resources 或 finally 确保关闭\n\n### 6. 线程安全问题\n\n```java\n// ❌ 禁止：多线程场景使用非线程安全集合\nprivate List<Device> devices = new ArrayList<>();\n\n// ✅ 正确：使用线程安全集合\nprivate List<Device> devices = Collections.synchronizedList(new ArrayList<>());\nprivate Map<String, Device> deviceMap = new ConcurrentHashMap<>();\n```\n\n### 7. 空值检查缺失\n\n```java\n// ❌ 禁止：获取对象后直接使用\nString name = device.getName();\nint length = name.length();  // name 可能为 null!\n\n// ✅ 正确：先检查空值\nString name = device.getName();\nif (name != null) {\n    int length = name.length();\n}\n```\n\n### 8. 其他\n\n- ❌ 禁止在多处生成几乎相同的代码块，必须提取公共方法\n- ❌ 禁止忽略边界条件（空集合、空字符串、0、负数）\n- ❌ 禁止为单个功能引入大型库，简单功能用标准库实现\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/git-commit.md",
+  "content": "# Git 提交规范\n\n> **触发条件**: 提交代码时，必须阅读本文档\n\n---\n\n## 1. 提交信息格式\n\n```\n{{COMMIT_FORMAT}}\n```\n\n> **AI 定制点**: 将 `{{COMMIT_FORMAT}}` 替换为项目实际的提交格式\n> \n> 常见格式示例:\n> - `[JiraNo]: PROJ-XXXX [Subject]: 简述 [Type]: feat/fix/refactor`\n> - `feat(module): 简述`\n> - `PROJ-XXXX: 简述`\n\n### 1.1 Type 说明\n\n| Type       | 说明        | 示例                   |\n|------------|-----------|----------------------|\n| `feat`     | 新功能       | 新增 xxx 功能            |\n| `fix`      | Bug 修复    | 修复 xxx 问题            |\n| `refactor` | 重构（不改变功能） | 重构 xxxManager 代码结构   |\n| `docs`     | 文档更新      | 更新 xxx 文档            |\n| `test`     | 测试相关      | 添加 xxx 单元测试          |\n| `chore`    | 构建/工具变更   | 升级依赖版本               |\n\n---\n\n## 2. 提交前检查清单\n\n在运行 `git commit` 前，**必须**完成：\n\n- [ ] 代码编译通过: `{{BUILD_VERIFY_COMMAND}}`\n- [ ] 无未使用的 import\n- [ ] 无注释掉的旧代码\n- [ ] 无硬编码魔法值\n- [ ] 相关测试通过（如有）\n- [ ] 公共方法有完整注释（对外 API 模块）\n\n> **AI 定制点**: 将 `{{BUILD_VERIFY_COMMAND}}` 替换为项目实际的编译验证命令\n\n---\n\n## 3. 禁止事项\n\n| # | 禁止行为                                 |\n|---|--------------------------------------|\n| 1 | ❌ 提交包含密钥/证书内容的文件                     |\n| 2 | ❌ 提交 `.idea/`、`build/`、`*.iml` 等临时文件 |\n| 3 | ❌ 一次提交包含不相关的多个变更                     |\n| 4 | ❌ 提交信息使用中文标点（使用英文标点）                 |\n| 5 | ❌ 提交信息超过 72 字符（Subject 部分）           |\n\n---\n\n## 4. 分支命名\n\n```\n{{BRANCH_FORMAT}}\n```\n\n> **AI 定制点**: 将 `{{BRANCH_FORMAT}}` 替换为项目实际的分支命名格式\n>\n> 常见格式示例:\n> - `feature/PROJ-XXXX-简短描述`\n> - `bugfix/PROJ-XXXX-简短描述`\n> - `refactor/PROJ-XXXX-简短描述`\n\n---\n\n## 5. 代码审查要点\n\n提交 PR 前，确保：\n\n1. **编译通过** - CI 不能红\n2. **测试通过** - 相关测试全绿\n3. **代码规范** - 符合 `docs/rules/coding-style.md`\n4. **文档更新** - API 变更需更新文档\n5. **提交信息** - 符合格式要求\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/testing.md",
+  "content": "# 测试规范\n\n> **触发条件**: 编写或修改测试代码时，必须阅读本文档\n\n---\n\n## 1. 必须遵守（违反即不合格）\n\n### 1.1 测试文件位置\n\n```\nsrc/test/java/           # 单元测试\nsrc/androidTest/java/    # Android 集成测试\n```\n\n### 1.2 测试类命名\n\n```java\n// ✅ 正确\npublic class ProtocolCodecTest { ... }\npublic class ChannelManagerTest { ... }\n\n// ❌ 禁止\npublic class TestProtocolCodec { ... }  // Test 不要放前面\npublic class ProtocolCodecTests { ... } // 不要用复数\n```\n\n### 1.3 测试方法命名\n\n```java\n// ✅ 正确：test<场景>_<预期结果>\n@Test\npublic void testEncode_withValidData_returnsEncodedBytes() { ... }\n\n@Test\npublic void testDecode_withInvalidMagic_throwsException() { ... }\n\n// ❌ 禁止\n@Test\npublic void test1() { ... }  // 无意义的命名\n```\n\n### 1.4 测试必须可重复执行\n\n```java\n// ❌ 禁止：依赖外部状态\n@Test\npublic void testConnect() {\n    // 依赖真实硬件/网络 - 不可重复！\n    connector.connect(realDevice);\n}\n\n// ✅ 正确：使用 Mock\n@Test\npublic void testConnect_withMockDevice_callsExpectedMethod() {\n    Device mockDevice = mock(Device.class);\n    connector.connect(mockDevice);\n    verify(mockDependency).expectedMethod();\n}\n```\n\n---\n\n## 2. 测试覆盖要求\n\n### 2.1 必须测试\n\n| 模块类型     | 必须测试的内容             |\n|----------|---------------------|\n| 基础/公共模块  | 工具类、编解码、数据转换        |\n| 业务逻辑模块   | 核心业务逻辑、状态机转换        |\n| 对外 API 模块 | 公共 API 行为、参数校验      |\n\n> **AI 定制点**: 根据项目实际模块结构填写具体模块名\n\n### 2.2 建议测试\n\n- 边界条件（空值、空集合、极值）\n- 异常路径\n- 并发场景\n\n---\n\n## 3. 测试结构（AAA 模式）\n\n```java\n@Test\npublic void testMethod_withCondition_expectedResult() {\n    // Arrange - 准备测试数据\n    byte[] input = createTestData();\n\n    // Act - 执行被测方法\n    Result result = target.process(input);\n\n    // Assert - 验证结果\n    assertNotNull(result);\n    assertEquals(expected, result.getValue());\n}\n```\n\n---\n\n## 4. 常用测试命令\n\n```bash\n# 运行全部测试\n{{TEST_ALL_COMMAND}}\n\n# 运行单个模块测试\n{{TEST_MODULE_COMMAND}}\n\n# 运行单个测试类\n{{TEST_SINGLE_CLASS_COMMAND}}\n```\n\n> **AI 定制点**: 替换为项目实际的测试命令\n\n---\n\n## 5. Mock 框架\n\n项目使用 **{{MOCK_FRAMEWORK}}**：\n\n```java\nimport static org.mockito.Mockito.*;\n\n// 创建 Mock\nSomeDependency mockDep = mock(SomeDependency.class);\n\n// 设置返回值\nwhen(mockDep.getResult()).thenReturn(expectedValue);\n\n// 验证调用\nverify(mockDep).expectedMethod();\nverify(mockDep, times(2)).anotherMethod(any());\n```\n\n> **AI 定制点**: 将 `{{MOCK_FRAMEWORK}}` 替换为项目实际使用的 Mock 框架\n\n---\n\n## 6. 禁止事项\n\n| # | 禁止行为                                                  |\n|---|-------------------------------------------------------|\n| 1 | ❌ 测试中使用 `Thread.sleep()` 等待（使用 Mock 或 CountDownLatch） |\n| 2 | ❌ 测试依赖执行顺序                                            |\n| 3 | ❌ 测试中硬编码真实设备地址/网络地址                                    |\n| 4 | ❌ 测试中访问网络或文件系统（除非是集成测试）                               |\n| 5 | ❌ 忽略测试失败（`@Ignore` 必须有注释说明原因）                         |\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/security.md",
+  "content": "# 安全规范\n\n> **触发条件**: 涉及密钥、证书、敏感数据、网络通信时，必须阅读本文档\n\n---\n\n## 1. 必须遵守（违反即不合格）\n\n### 1.1 禁止硬编码敏感信息\n\n```java\n// ❌ 禁止：硬编码密钥/证书/密码\nprivate static final String API_KEY = \"sk-xxxxxxxxxxxx\";\nprivate static final String SECRET = \"my_secret_key\";\nprivate static final String CERT = \"MIIBkTCB...\";\n\n// ✅ 正确：从安全存储加载\nString apiKey = SecureConfig.get(\"api_key\");\n// 或从 assets/配置文件加载\nInputStream is = context.getAssets().open(\"cert.p12\");\n```\n\n### 1.2 禁止日志打印敏感信息\n\n```java\n// ❌ 禁止\nLog.d(TAG, \"密钥: \" + privateKey.toString());\nLog.d(TAG, \"token: \" + userToken);\nLog.d(TAG, \"密码: \" + password);\n\n// ✅ 正确\nLog.d(TAG, \"认证完成\");\nLog.d(TAG, \"token 加载成功，长度: \" + token.length());\n```\n\n### 1.3 加密存储敏感数据\n\n```java\n// ❌ 禁止：明文存储\nSharedPreferences.edit().putString(\"token\", token).apply();\n\n// ✅ 正确：使用加密存储\nEncryptedSharedPreferences.create(\n    context,\n    \"secret_prefs\",\n    masterKey,\n    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,\n    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM\n);\n```\n\n### 1.4 敏感数据用完立即清理\n\n```java\n// ✅ 正确：用完置空\ntry {\n    byte[] result = processSecret(secretData);\n    return result;\n} finally {\n    Arrays.fill(secretData, (byte) 0);  // 清零\n    secretRef = null;\n}\n```\n\n---\n\n## 2. 敏感数据分类\n\n### 2.1 高敏感（禁止日志）\n\n| 数据类型   | 说明                   |\n|--------|----------------------|\n| 私钥     | PrivateKey 及其 byte[] |\n| 密码/密钥  | 任何形式的密码、API Key      |\n| 用户凭证   | token、session、cookie |\n| 证书内容   | 编码后的证书数据             |\n\n### 2.2 中敏感（脱敏后可日志）\n\n| 数据类型 | 脱敏方式                       |\n|------|----------------------------|\n| 设备地址 | 仅显示后 4 位: `**:**:**:AA:BB` |\n| 用户ID | 部分掩码: `user_***456`       |\n| 文件路径 | 隐去根路径                      |\n\n---\n\n## 3. 网络安全\n\n- 网络通信使用加密通道（TLS/SSL）\n- 证书校验不能跳过\n- 不信任自签名证书（除开发环境）\n\n---\n\n## 4. 禁止事项\n\n| # | 禁止行为                    |\n|---|-------------------------|\n| 1 | ❌ 硬编码密钥、证书、密码           |\n| 2 | ❌ 日志打印敏感信息              |\n| 3 | ❌ 明文存储敏感数据              |\n| 4 | ❌ 忽略证书/签名验证结果           |\n| 5 | ❌ 使用弱加密算法（MD5、SHA1、DES） |\n| 6 | ❌ 在 Git 中提交密钥/证书文件      |\n| 7 | ❌ 禁用 SSL 证书校验           |\n\n---\n\n## 5. Git 安全\n\n确保 `.gitignore` 包含：\n\n```\n# 敏感文件\n*.p12\n*.keystore\n*.jks\n*.pem\n*.key\nlocal.properties\nsecrets.properties\n```\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 12.5s)
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "创建 Skill 目录结构",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "2",
+      "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "3",
+      "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "4",
+      "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "5",
+      "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "id": "6",
+      "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "7",
+      "content": "验证：检查所有文件完整性和一致性",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "id": "1",
+    "content": "创建 Skill 目录结构",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "5",
+    "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "id": "6",
+    "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+    "status": "pending",
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "content": "验证：检查所有文件完整性和一致性",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 28.5s)
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/AGENTS.md.tmpl",
+  "content": "# AGENTS.md - {{PROJECT_NAME}} AI Agent Guidelines\n\n> **核心原则**: 精简上下文 + 严格约束 + 按需加载详细规则\n\n---\n\n## 1. 项目概览\n\n**{{PROJECT_NAME}}**: {{PROJECT_DESCRIPTION}}\n\n| 项目      | 说明                 |\n|---------|--------------------|\n| 平台要求    | {{PLATFORM}}       |\n| 语言      | {{LANGUAGE}}       |\n| {{LANG_VERSION_LABEL}} | {{LANG_VERSION}} |\n| {{BUILD_TOOL_LABEL}}   | {{BUILD_TOOL_VERSION}} |\n| 核心能力    | {{CORE_CAPABILITIES}} |\n\n---\n\n## 2. 构建与测试\n\n```bash\n{{BUILD_COMMANDS}}\n```\n\n---\n\n## 3. 架构约束\n\n### 3.1 分层依赖（只允许从上到下）\n\n```\n{{LAYER_DEPENDENCY_GRAPH}}\n```\n\n**禁止反向依赖**：\n\n{{REVERSE_DEPENDENCY_RULES}}\n\n### 3.2 文件访问权限\n\n| 分区    | 路径        | 权限     | 说明       |\n|-------|-----------|--------|----------|\n{{FILE_ACCESS_RULES}}\n\n### 3.3 特殊模块约束\n\n{{SPECIAL_MODULE_CONSTRAINTS}}\n\n---\n\n## 4. 核心编码规范（Top N）\n\n> 完整规范见 `docs/rules/coding-style.md`\n\n{{CODING_RULES_SUMMARY}}\n\n---\n\n## 5. AI 禁止事项\n\n### 5.1 流程禁止\n\n| # | 禁止行为                   |\n|---|------------------------|\n| 1 | ❌ 用户未确认设计前，禁止编写实现代码    |\n| 2 | ❌ 禁止删除用户未明确要求删除的文件     |\n| 3 | ❌ 禁止声称\"编译通过\"但未实际运行构建命令 |\n| 4 | ❌ 禁止在未阅读相关设计文档前修改核心模块  |\n\n### 5.2 文件禁止\n\n| # | 禁止行为   |\n|---|--------|\n{{FILE_PROHIBITIONS}}\n\n### 5.3 代码禁止\n\n| #  | 禁止行为                            |\n|----|-----------------------------------|\n| 1  | ❌ 禁止留下注释掉的旧代码                   |\n| 2  | ❌ 禁止留下未使用的 import/变量/方法         |\n| 3  | ❌ {{LOG_PROHIBITION}}              |\n| 4  | ❌ 禁止使用 `import *` 或内联全限定类名      |\n| 5  | ❌ 禁止吞掉异常（catch 后必须日志+处理）        |\n| 6  | ❌ 禁止硬编码魔法值                       |\n| 7  | ❌ 禁止在日志中打印敏感信息（密钥、证书、用户ID）     |\n{{EXTRA_CODE_PROHIBITIONS}}\n\n---\n\n## 6. 代码输出检查清单\n\n提交代码前，AI **必须**验证：\n\n- [ ] 运行 `{{BUILD_VERIFY_COMMAND}}` 通过\n- [ ] 无新增未使用的 import\n- [ ] 无注释掉的旧代码\n- [ ] 修改的公共方法有完整注释（对外 API 模块）\n- [ ] 涉及多线程的代码使用线程安全集合\n- [ ] 异常处理正确（日志 + 重抛/处理）\n- [ ] 无硬编码魔法值\n{{EXTRA_CHECKLIST_ITEMS}}\n\n---\n\n## 7. 规则索引（按需加载）\n\n**修改特定模块前，必须先阅读对应的规则文档**：\n\n| 修改场景   | 必读规则                  | 必读设计文档                |\n|--------|----------------------|-----------------------|\n| 编码风格问题 | `docs/rules/coding-style.md` | -               |\n{{RULES_INDEX}}\n| 测试相关   | `docs/rules/testing.md`      | -               |\n| Git 提交  | `docs/rules/git-commit.md`   | -               |\n| 安全相关   | `docs/rules/security.md`     | -               |\n\n---\n\n## 8. 关键类参考\n\n{{KEY_CLASSES_REFERENCE}}\n\n---\n\n{{OPTIONAL_CONSTANTS_SECTION}}\n\n## {{NEXT_SECTION_NUM}}. Git 提交格式\n\n```\n{{COMMIT_FORMAT}}\n```\n\n**Type 说明**：\n\n- `feat`: 新功能\n- `fix`: Bug 修复\n- `refactor`: 重构（不改变功能）\n- `docs`: 文档更新\n- `test`: 测试相关\n\n> 完整规范见 `docs/rules/git-commit.md`\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 7.6s)
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "创建 Skill 目录结构",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "2",
+      "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "3",
+      "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "4",
+      "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "5",
+      "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "6",
+      "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+      "status": "in_progress",
+      "priority": "medium"
+    },
+    {
+      "id": "7",
+      "content": "验证：检查所有文件完整性和一致性",
+      "status": "pending",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "id": "1",
+    "content": "创建 Skill 目录结构",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "5",
+    "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "6",
+    "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+    "status": "in_progress",
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "content": "验证：检查所有文件完整性和一致性",
+    "status": "pending",
+    "priority": "medium"
+  }
+]
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 22.3s)
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/domain-rule.md.tmpl",
+  "content": "# {{DOMAIN_NAME}} 开发规则\n\n> **触发条件**: 修改 `{{MODULE_PATH}}` 下{{DOMAIN_NAME}}相关代码时，必须阅读本文档\n> **完整设计**: [design/{{DOMAIN_SLUG}}-design.md](../design/{{DOMAIN_SLUG}}-design.md)\n\n---\n\n## 1. 必须遵守（违反即不合格）\n\n### 1.1 {{RULE_1_TITLE}}\n\n**根因**: {{RULE_1_REASON}}\n\n```java\n// ❌ 禁止：{{RULE_1_BAD_DESC}}\n{{RULE_1_BAD_CODE}}\n\n// ✅ 正确：{{RULE_1_GOOD_DESC}}\n{{RULE_1_GOOD_CODE}}\n```\n\n<!-- AI: 根据代码分析，为每个关键约束生成 1.x 小节 -->\n<!-- 格式: 标题 + 根因 + 错误示例 + 正确示例 -->\n\n---\n\n## 2. 架构约束\n\n### 2.1 关键类职责\n\n| 类   | 职责   | 注意事项   |\n|-----|------|--------|\n{{KEY_CLASSES_TABLE}}\n\n### 2.2 模块边界\n\n{{MODULE_BOUNDARY_DESC}}\n\n---\n\n## 3. 核心流程（只读参考）\n\n```\n{{CORE_FLOW}}\n```\n\n**禁止修改核心流程顺序**，除非有完整的设计评审。\n\n---\n\n## 4. 线程模型\n\n| 线程     | 来源   | 处理     |\n|--------|------|--------|\n{{THREAD_MODEL_TABLE}}\n\n---\n\n## 5. 常见错误与解决\n\n### 5.1 {{ERROR_1_TITLE}}\n\n**根因**: {{ERROR_1_REASON}}\n**解决**: {{ERROR_1_SOLUTION}}\n\n<!-- AI: 根据代码分析，列举该领域常见的错误和解决方案 -->\n\n---\n\n## 6. 禁止事项\n\n| # | 禁止行为   |\n|---|--------|\n{{PROHIBITIONS_TABLE}}\n\n---\n\n## 7. 错误码速查\n\n| 错误码 | 常量名  | 说明   |\n|-----|------|------|\n{{ERROR_CODES_TABLE}}\n\n<!-- AI: 如果项目没有错误码体系，可以删除此节 -->\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+**Tool: write**
+
+**Input:**
+```json
+{
+  "filePath": "/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/domain-design.md.tmpl",
+  "content": "# {{DOMAIN_NAME}} 设计文档\n\n---\n\n## 1. 概述\n\n### 1.1 背景\n\n{{BACKGROUND_DESC}}\n\n### 1.2 目标\n\n{{GOALS_DESC}}\n\n### 1.3 范围\n\n- **包含**: {{IN_SCOPE}}\n- **不包含**: {{OUT_OF_SCOPE}}\n\n---\n\n## 2. 核心概念\n\n| 概念   | 说明   |\n|------|------|\n{{CONCEPTS_TABLE}}\n\n---\n\n## 3. 架构设计\n\n### 3.1 模块结构\n\n```\n{{MODULE_STRUCTURE}}\n```\n\n### 3.2 类图\n\n| 类   | 职责   | 依赖     |\n|-----|------|--------|\n{{CLASS_DIAGRAM_TABLE}}\n\n### 3.3 设计原则\n\n{{DESIGN_PRINCIPLES}}\n\n---\n\n## 4. 核心流程\n\n### 4.1 {{FLOW_1_TITLE}}\n\n```\n{{FLOW_1_SEQUENCE}}\n```\n\n<!-- AI: 根据代码分析，为每个核心流程生成时序描述 -->\n\n---\n\n## 5. 接口定义\n\n### 5.1 对外接口\n\n| 方法   | 参数   | 返回值  | 说明   |\n|------|------|------|------|\n{{PUBLIC_API_TABLE}}\n\n### 5.2 内部接口\n\n{{INTERNAL_API_DESC}}\n\n---\n\n## 6. 错误处理\n\n### 6.1 错误码定义\n\n| 错误码 | 常量名  | 说明   | 处理方式   |\n|-----|------|------|--------|\n{{ERROR_HANDLING_TABLE}}\n\n### 6.2 异常处理策略\n\n{{EXCEPTION_STRATEGY}}\n\n---\n\n## 7. 线程模型\n\n{{THREAD_MODEL_DESC}}\n\n---\n\n## 8. 扩展点\n\n### 8.1 已预留的扩展点\n\n{{EXTENSION_POINTS}}\n\n### 8.2 扩展约束\n\n{{EXTENSION_CONSTRAINTS}}\n"
+}
+```
+
+**Output:**
+```
+Wrote file successfully.
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 8.2s)
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "创建 Skill 目录结构",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "2",
+      "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "3",
+      "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "4",
+      "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "5",
+      "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "6",
+      "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+      "status": "completed",
+      "priority": "medium"
+    },
+    {
+      "id": "7",
+      "content": "验证：检查所有文件完整性和一致性",
+      "status": "in_progress",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "id": "1",
+    "content": "创建 Skill 目录结构",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "5",
+    "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "6",
+    "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+    "status": "completed",
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "content": "验证：检查所有文件完整性和一致性",
+    "status": "in_progress",
+    "priority": "medium"
+  }
+]
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 5.2s)
+
+Now let me verify all files exist and are consistent:
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "find /Users/liyou/.config/opencode/skills/agents-md-scaffold -type f | sort",
+  "description": "List all skill files"
+}
+```
+
+**Output:**
+```
+/Users/liyou/.config/opencode/skills/agents-md-scaffold/scaffold.sh
+/Users/liyou/.config/opencode/skills/agents-md-scaffold/SKILL.md
+/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/AGENTS.md.tmpl
+/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/coding-style.md
+/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/domain-design.md.tmpl
+/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/domain-rule.md.tmpl
+/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/git-commit.md
+/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/security.md
+/Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/testing.md
+
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "wc -l /Users/liyou/.config/opencode/skills/agents-md-scaffold/SKILL.md /Users/liyou/.config/opencode/skills/agents-md-scaffold/scaffold.sh /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/*.md /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/*.tmpl",
+  "description": "Count lines in all files"
+}
+```
+
+**Output:**
+```
+     316 /Users/liyou/.config/opencode/skills/agents-md-scaffold/SKILL.md
+     219 /Users/liyou/.config/opencode/skills/agents-md-scaffold/scaffold.sh
+     200 /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/coding-style.md
+      83 /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/git-commit.md
+     123 /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/security.md
+     150 /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/testing.md
+     144 /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/AGENTS.md.tmpl
+     104 /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/domain-design.md.tmpl
+      84 /Users/liyou/.config/opencode/skills/agents-md-scaffold/templates/domain-rule.md.tmpl
+    1423 total
+
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 4.3s)
+
+Let me do a quick dry-run of the scaffold script to verify it works:
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "mkdir -p /tmp/test-scaffold-project && echo \"include ':app'\" > /tmp/test-scaffold-project/settings.gradle",
+  "description": "Create temp test project"
+}
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 3.6s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "echo \"y\" | bash /Users/liyou/.config/opencode/skills/agents-md-scaffold/scaffold.sh /tmp/test-scaffold-project 2>&1",
+  "description": "Test scaffold.sh execution"
+}
+```
+
+**Output:**
+```
+
+[0;34m================================================[0m
+[0;34m AGENTS.md Scaffold - 文档驱动开发框架搭建[0m
+[0;34m================================================[0m
+
+[0;34m[INFO][0m 目标项目: /tmp/test-scaffold-project
+
+[0;34m[INFO][0m 检查前置条件...
+[0;32m[OK][0m 前置条件检查完成
+[0;34m[INFO][0m 创建目录结构...
+[0;32m[OK][0m 目录结构创建完成
+[0;34m[INFO][0m 复制通用规则模板...
+[0;32m[OK][0m   已生成: coding-style.md
+[0;32m[OK][0m   已生成: git-commit.md
+[0;32m[OK][0m   已生成: testing.md
+[0;32m[OK][0m   已生成: security.md
+[0;32m[OK][0m 通用规则模板复制完成
+[0;34m[INFO][0m 创建 AGENTS.md 骨架...
+[0;32m[OK][0m AGENTS.md 骨架创建完成
+
+[0;32m========================================[0m
+[0;32m 框架搭建完成！[0m
+[0;32m========================================[0m
+
+已生成文件:
+  /tmp/test-scaffold-project/AGENTS.md                  (骨架，需 AI 填充)
+  /tmp/test-scaffold-project/docs/rules/coding-style.md (通用编码规范)
+  /tmp/test-scaffold-project/docs/rules/git-commit.md   (Git 提交规范)
+  /tmp/test-scaffold-project/docs/rules/testing.md      (测试规范)
+  /tmp/test-scaffold-project/docs/rules/security.md     (安全规范)
+  /tmp/test-scaffold-project/docs/design/.gitkeep       (设计文档目录)
+
+[1;33m下一步:[0m
+  1. 在项目目录中启动 AI 助手
+  2. 告诉 AI: '请使用 agents-md-scaffold skill 分析项目并完善 AGENTS.md'
+  3. AI 将深度分析代码，交互式引导你完成所有文档
+
+[0;34m提示:[0m
+  - AGENTS.md 中的 {{占位符}} 需要 AI 分析代码后替换
+  - 通用规则文件中的 {{PROJECT_LOG_CLASS}} 等需要根据项目实际替换
+  - 领域规则文件将由 AI 根据项目特征交互生成
+
+
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 717.8s)
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "find /tmp/test-scaffold-project -type f | sort && rm -rf /tmp/test-scaffold-project",
+  "description": "Verify generated files and cleanup"
+}
+```
+
+**Output:**
+```
+/tmp/test-scaffold-project/AGENTS.md
+/tmp/test-scaffold-project/docs/design/.gitkeep
+/tmp/test-scaffold-project/docs/rules/coding-style.md
+/tmp/test-scaffold-project/docs/rules/git-commit.md
+/tmp/test-scaffold-project/docs/rules/security.md
+/tmp/test-scaffold-project/docs/rules/testing.md
+/tmp/test-scaffold-project/settings.gradle
+
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 14.0s)
+
+脚本运行正常，所有文件都正确生成。
+
+**Tool: todowrite**
+
+**Input:**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "创建 Skill 目录结构",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "2",
+      "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "3",
+      "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "4",
+      "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "5",
+      "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+      "status": "completed",
+      "priority": "high"
+    },
+    {
+      "id": "6",
+      "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+      "status": "completed",
+      "priority": "medium"
+    },
+    {
+      "id": "7",
+      "content": "验证：检查所有文件完整性和一致性",
+      "status": "completed",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+**Output:**
+```
+[
+  {
+    "id": "1",
+    "content": "创建 Skill 目录结构",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "content": "编写 SKILL.md（核心 Skill 文档，三阶段流程）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "content": "编写 scaffold.sh（目录骨架 + 通用规则生成脚本）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "content": "编写通用模板文件（coding-style、git-commit、testing、security）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "5",
+    "content": "编写 AGENTS.md 模板（AI 填充用的结构模板）",
+    "status": "completed",
+    "priority": "high"
+  },
+  {
+    "id": "6",
+    "content": "编写领域规则模板（domain-rule 和 domain-design 模板）",
+    "status": "completed",
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "content": "验证：检查所有文件完整性和一致性",
+    "status": "completed",
+    "priority": "medium"
+  }
+]
+```
+
+---
+
+## Assistant (Build · claude-opus-4-6 · 13.9s)
+
+全部完成。以下是最终产物总结：
+
+## 产物位置
+
+```
+~/.config/opencode/skills/agents-md-scaffold/
+├── SKILL.md                           # 核心 Skill (316行)
+├── scaffold.sh                        # 骨架生成脚本 (219行)
+└── templates/
+    ├── AGENTS.md.tmpl                 # AGENTS.md 结构模板
+    ├── coding-style.md                # 通用编码规范
+    ├── git-commit.md                  # Git 提交规范
+    ├── testing.md                     # 测试规范
+    ├── security.md                    # 安全规范
+    ├── domain-rule.md.tmpl            # 领域规则模板
+    └── domain-design.md.tmpl          # 领域设计文档模板
+```
+
+## 使用方式
+
+**在新项目中：**
+
+```bash
+# 1. 运行脚本生成骨架
+bash ~/.config/opencode/skills/agents-md-scaffold/scaffold.sh /path/to/project
+
+# 2. 在项目中启动 AI，告诉它：
+#    "请使用 agents-md-scaffold skill 分析项目并完善 AGENTS.md"
+```
+
+## 三阶段流程
+
+| 阶段 | 谁做 | 产出 |
+|---|---|---|
+| **Phase 1** | scaffold.sh | 目录结构 + 4 个通用规则文件 + AGENTS.md 骨架 |
+| **Phase 2** | AI 深度分析代码 → 用户确认 | AGENTS.md 完整内容（模块依赖、关键类、构建命令、架构约束） |
+| **Phase 3** | AI 交互引导 → 用户确认 | 领域模块的 rules + design 文档 + 按需生成的专项规则 |
+
+**关键约束**：Phase 2 的深度分析必须覆盖构建体系、架构分层、核心代码、领域特征 4 个维度，每一步分析结果都输出给用户确认后才往下走。所有通用模板中的 `{{占位符}}` 由 AI 根据代码分析结果替换，不是手动填。
+
+---
+
